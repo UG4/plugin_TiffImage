@@ -168,17 +168,20 @@ static void Dimension(Registry& reg, string grp)
 
 	{
 
+
 		typedef ImageData<dim, number> T;
+
 		string name = string("TiffImageDataNumber").append(suffix);
-		reg.add_class_<T>(name, grp)
+		reg.add_class_<T, typename T::user_data_type>(name, grp)
     	   .template add_constructor<void (*)() >("")
 		   .add_method("init", &T::init)
 		   .add_method("set_corner", &T::set_corner)
 		   .add_method("set_corners", &T::set_corners)
+		   .add_method("get_size_x", &T::get_size_x)
+		   .add_method("get_size_y", &T::get_size_y)
+		   .add_method("get_size_z", &T::get_size_z)
 		   .set_construct_as_smart_pointer(true);
 		reg.add_class_to_group(name, "TiffImageDataNumber", tag);
-
-
 
 	}
 }

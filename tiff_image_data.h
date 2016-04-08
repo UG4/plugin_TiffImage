@@ -74,7 +74,7 @@ public:
 
 };
 
-SmartPtr<ImageContainer> CreateTiffImageContainer(char *filename)
+SmartPtr<ImageContainer> CreateTiffImageContainer(const char *filename)
 {
 	SmartPtr<ImageContainer> spImgContainer = make_sp(new ImageContainer());
 
@@ -108,6 +108,9 @@ class ImageData : public StdGlobPosData<ImageData<dim, TData>, TData, dim, void>
 
 public:
 
+	typedef StdGlobPosData<ImageData<dim, TData>, TData, dim, void> base_type;
+	typedef UserData<TData, dim> user_data_type;
+
 	ImageData() : m_x0(0.0), m_x1(1.0), m_image_stack(SPNULL)
 	{}
 
@@ -116,7 +119,7 @@ public:
 
 
 public:
-	// evaluate field at pos x
+	// evaluate field at (physical) pos x
 	inline void evaluate(TData& val, const MathVector<dim>& x, number time, int si) const
 	{
 
@@ -136,10 +139,15 @@ public:
 
 
 
-	void init(char *filename)
+	void init(std::string filename)
 	{
-		read_data(filename);
+		read_data(filename.c_str());
 	}
+
+	// short cuts
+		int get_size_x() const { return m_image_stack->get_size_x(); }
+		int get_size_y() const { return m_image_stack->get_size_y(); }
+		int get_size_z() const { return m_image_stack->get_size_z(); }
 
 protected:
 
@@ -148,7 +156,7 @@ protected:
 	void modify_grid(Grid& grid);
 
 	//! read data
-	void read_data (char *filename)
+	void read_data (const char* filename)
 	{
 
 		// read data
@@ -171,9 +179,9 @@ protected:
 		int j = (int) floor(ijkpos[1]);
 		int k = (int) floor(ijkpos[2]);
 
-		UG_ASSERT( i < get_size_x() && i>= 0, "Invalid x");
-		UG_ASSERT( j < get_size_y() && j>= 0, "Invalid y");
-		UG_ASSERT( k < get_size_z() && k>= 0, "Invalid z");
+		UG_ASSERT( i < get_size_x() && i>= 0, "Invalid x: " << i << ", " << x[0] << ", " << m_x1);
+		UG_ASSERT( j < get_size_y() && j>= 0, "Invalid y: " << j << ", " << x[1] << ", " << m_x1);
+		UG_ASSERT( k < get_size_z() && k>= 0, "Invalid z: " << k << ", " << x[2] << ", " << m_x1);
 
 		return m_image_stack->get(i,j,k);
 
@@ -206,10 +214,7 @@ protected:
 	}
 
 
-	// short cuts
-	int get_size_x() const { return m_image_stack->get_size_x(); }
-	int get_size_y() const { return m_image_stack->get_size_y(); }
-	int get_size_z() const { return m_image_stack->get_size_z(); }
+
 
 protected:
 
