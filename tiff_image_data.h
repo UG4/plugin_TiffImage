@@ -55,7 +55,7 @@
 #endif
 
 
-#include "../TiffImage/neura2/c3dimage.h"
+#include "neura2/c3dimage.h"
 
 namespace ug{
 namespace ImageDataPlugin{
@@ -89,13 +89,24 @@ void CreateImageBasedGrid(Grid& grid, char *filename)
 
 }
 */
+
+
+/*
+ * For treating image stacks.
+ *
+ * Assumptions: Base data is of size NX x NY x NZ
+ *
+ * NX = NY = 2**p
+ *
+ *
+ * */
 template <int dim, typename TData=number>
 class ImageData : public StdGlobPosData<ImageData<dim, TData>, TData, dim, void>
 {
 
 public:
 
-	ImageData() : m_x0(0.0), m_x1(1.0), m_image_data(NULL)
+	ImageData() : m_x0(0.0), m_x1(1.0), m_image_stack(NULL)
 	{}
 
 	virtual ~ImageData()
@@ -111,59 +122,63 @@ public:
 		// a) determine values in closest corners
 		// b) compute multi-linear combination
 
-		val = 0.0;
+		// find matching cell
+		val = get_cell_data(x)/255.0;
 	}
 
-	void set_corners(const MathVector<dim>& x1)
-	{
-		m_x1 = x1;
-	}
+	void set_corner(const MathVector<dim>& x1)
+	{ m_x1 = x1; }
+
+	void set_corners(const MathVector<dim>& x0, const MathVector<dim>& x1)
+	{ m_x0 = x0; m_x1 = x1;}
 
 
 protected:
+
 
 	//
 	void read_data (char *filename)
 	{
 
 		// read data
-		m_image_data = CreateTiffImageContainer(filename);
+		m_image_stack = CreateTiffImageContainer(filename);
 
-		// read dimensions
-		int m_num_points[dim];
-		m_num_points[0]= get_size_x();
-		m_num_points[1]= get_size_y();
+		// default: overwrite
+		m_x0 = 0.0;
+		m_x1.x = get_size_x();
+		m_x1.y = get_size_y();
+		m_x1.y = get_size_z();
 
-		if (dim>2) {
-			m_num_points[2]= get_size_z();
-		}
 	}
 
-	double interpolate(const MathVector<dim>& x)
+	unsigned char get_cell_data(const MathVector<dim>& x) const
 	{
 		//
 		MathVector<dim> ijkpos;
 		coord2ijk(x, ijkpos);
 
+		int i = (int) floor(ijkpos[0]);
+		int j = (int) floor(ijkpos[1]);
+		int k = (int) floor(ijkpos[2]);
 
-		int i,j,k;
-		i = (int) floor(ijkpos[0]);
-		j = (int) floor(ijkpos[1]);
-		k = (int) floor(ijkpos[2]);
+		UG_ASSERT( i < get_size_x() && i>= 0, "Invalid x");
+		UG_ASSERT( j < get_size_y() && j>= 0, "Invalid y");
+		UG_ASSERT( k < get_size_z() && k>= 0, "Invalid z");
 
+		return m_image_stack->get(i,j,k);
 
+		/*
 		unsigned char u[8];
-		u[0] = m_image_data->get(i,j,k);
-		u[1] = m_image_data->get(i+1,j,k);
-		u[2] = m_image_data->get(i+1,j+1,k);
-		u[3] = m_image_data->get(i,j+1,k);
+		u[0] = m_image_stack->get(i,j,k);
+		u[1] = m_image_stack->get(i+1,j,k);
+		u[2] = m_image_stack->get(i+1,j+1,k);
+		u[3] = m_image_stack->get(i,j+1,k);
 
-		u[4] = m_image_data->get(i,j,k+1);
-		u[5] = m_image_data->get(i+1,j,k+1);
-		u[6] = m_image_data->get(i+1,j+1,k+1);
-		u[7] = m_image_data->get(i,j+1,k+1);
-
-		return u[0];
+		u[4] = m_image_stack->get(i,j,k+1);
+		u[5] = m_image_stack->get(i+1,j,k+1);
+		u[6] = m_image_stack->get(i+1,j+1,k+1);
+		u[7] = m_image_stack->get(i,j+1,k+1);
+		*/
 	}
 
 
@@ -171,9 +186,9 @@ protected:
 	void coord2ijk(const MathVector<dim>& coord, MathVector<dim>& ijk) const
 	{
 
-		int nx =  get_size_x();
+		int nx = get_size_x();
 		int ny = get_size_y();
-		int nz = m_image_data->get_size_z();
+		int nz = get_size_z();
 
 		ijk[0] = (coord[0]-m_x0[0])/(m_x1[0]-m_x0[0])*nx;
 		ijk[1] = (coord[1]-m_x0[1])/(m_x1[1]-m_x0[1])*ny;
@@ -182,16 +197,16 @@ protected:
 
 
 	// short cuts
-	int get_size_x() const { return m_image_data->get_size_x(); }
-	int get_size_y() const { return m_image_data->get_size_y(); }
-	int get_size_z() const { return m_image_data->get_size_z(); }
+	int get_size_x() const { return m_image_stack->get_size_x(); }
+	int get_size_y() const { return m_image_stack->get_size_y(); }
+	int get_size_z() const { return m_image_stack->get_size_z(); }
 
 protected:
 
 	MathVector<dim> m_x0; 		// lower left corner
 	MathVector<dim> m_x1; 		// upper right corner
 
-	SmartPtr<ImageContainer> m_image_data;
+	SmartPtr<ImageContainer> m_image_stack;
 
 };
 

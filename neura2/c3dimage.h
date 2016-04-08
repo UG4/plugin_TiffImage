@@ -79,7 +79,7 @@ public:
 	
 	
 	// Gibt Grauwert des Bildes an der Stelle i,j,k zurück:
-	uchar get(const int i, const int j, const int k) {
+	uchar get(const int i, const int j, const int k) const {
 		if((p_images != NULL) && (k >= 0) && (k < size_z))
 			return p_images[k].get(i, j);
 		return uchar(0);		

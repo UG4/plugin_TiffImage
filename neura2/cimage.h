@@ -86,7 +86,7 @@ public:
 	
 	// Gibt den Bildwert an der Stelle i, j zurück.
 	// Bei nicht-validen Werten für i oder j ist die Rückgabe 0.
-	uchar get(const int i, const int j) {
+	uchar get(const int i, const int j) const {
 		if((p_data != NULL) && (i >= 0) && (i < size_x) && (j >= 0) && (j < size_y))
 			return p_data[j * size_x + i];
 		else return uchar(0);

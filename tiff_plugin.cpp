@@ -172,6 +172,7 @@ static void Dimension(Registry& reg, string grp)
 		string name = string("ImageDataNumber").append(suffix);
 		reg.add_class_<T>(name, grp)
     	   .template add_constructor<void (*)() >("")
+		   .add_method("set_corner", &T::set_corner)
 		   .add_method("set_corners", &T::set_corners)
 		   .set_construct_as_smart_pointer(true);
 		reg.add_class_to_group(name, "ImageDataNumber", tag);
