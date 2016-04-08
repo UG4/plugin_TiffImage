@@ -84,7 +84,7 @@ SmartPtr<ImageContainer> CreateTiffImageContainer(char *filename)
 };
 
 /*
-void CreateImageBasedGrid(Grid& grid, char *filename)
+void CreateGrid(Grid& grid, SmartPtr<>)
 {
 
 }
@@ -100,13 +100,15 @@ void CreateImageBasedGrid(Grid& grid, char *filename)
  *
  *
  * */
+
+
 template <int dim, typename TData=number>
 class ImageData : public StdGlobPosData<ImageData<dim, TData>, TData, dim, void>
 {
 
 public:
 
-	ImageData() : m_x0(0.0), m_x1(1.0), m_image_stack(NULL)
+	ImageData() : m_x0(0.0), m_x1(1.0), m_image_stack(SPNULL)
 	{}
 
 	virtual ~ImageData()
@@ -133,26 +135,34 @@ public:
 	{ m_x0 = x0; m_x1 = x1;}
 
 
+
+	void init(char *filename)
+	{
+		read_data(filename);
+	}
+
 protected:
 
+	template <typename VT> void set_corners_auto(VT &x) {}
 
-	//
+	void modify_grid(Grid& grid);
+
+	//! read data
 	void read_data (char *filename)
 	{
 
 		// read data
 		m_image_stack = CreateTiffImageContainer(filename);
 
-		// default: overwrite
-		m_x0 = 0.0;
-		m_x1.x = get_size_x();
-		m_x1.y = get_size_y();
-		m_x1.y = get_size_z();
+		set_corners_auto(m_x1);
 
 	}
 
+	//! return cell data for a given physical coordinate
 	unsigned char get_cell_data(const MathVector<dim>& x) const
 	{
+
+		UG_ASSERT(m_image_stack.valid(), "Need to initialize data set first!")
 		//
 		MathVector<dim> ijkpos;
 		coord2ijk(x, ijkpos);
@@ -182,7 +192,7 @@ protected:
 	}
 
 
-	// maps coordinate to (continuous) 'ijk'
+	//! mapping physical coordinate to (continuous) ijk coordinate
 	void coord2ijk(const MathVector<dim>& coord, MathVector<dim>& ijk) const
 	{
 

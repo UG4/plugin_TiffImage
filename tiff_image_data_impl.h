@@ -76,6 +76,24 @@ namespace ImageDataPlugin{
 
 // TODO: Add excessively long functions here
 
+template <int dim, typename TData=number>
+void ImageData :: modify_grid(Grid &grid)
+{
+	grid.
+}
+
+template <int dim, typename TData=number>
+void set_corners_auto(MathVector<2> &x1)
+{
+	x1 = MathVector<2> ( get_size_x(),  get_size_y());
+}
+
+template <int dim, typename TData=number>
+void set_corners_auto(MathVector<3> &x1)
+{
+	x1 = MathVector<3> ( get_size_x(),  get_size_y(),  get_size_y());
+}
+
 
 
 } // namespace ImageDataPlugin
