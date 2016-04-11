@@ -37,7 +37,7 @@
 
 # Name of your plugin and sources.
 set(pluginName	TiffImageData)
-set(SOURCES		tiff_plugin.cpp)
+set(SOURCES		ijk_plugin.cpp)
 
 set(SOURCES ${SOURCES}
 	neura2/c3dimage.cpp

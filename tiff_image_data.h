@@ -79,7 +79,7 @@ SmartPtr<ImageContainer> CreateTiffImageContainer(const char *filename)
 	SmartPtr<ImageContainer> spImgContainer = make_sp(new ImageContainer());
 
 	spImgContainer->read_tiff(filename);
-
+	spImgContainer->write_tiff("debugOut.tif");
 	return spImgContainer;
 };
 
@@ -128,7 +128,7 @@ public:
 		// b) compute multi-linear combination
 
 		// find matching cell
-		val = get_cell_data(x)/255.0;
+		val = get_cell_data(x); ///255.0;
 	}
 
 	void set_corner(const MathVector<dim>& x1)
@@ -155,19 +155,20 @@ protected:
 
 	void modify_grid(Grid& grid);
 
+	//double dummy;
 	//! read data
 	void read_data (const char* filename)
 	{
 
 		// read data
 		m_image_stack = CreateTiffImageContainer(filename);
-
+		//dummy = 0;
 		set_corners_auto(m_x1);
 
 	}
 
 	//! return cell data for a given physical coordinate
-	unsigned char get_cell_data(const MathVector<dim>& x) const
+	double get_cell_data(const MathVector<dim>& x) const
 	{
 
 		UG_ASSERT(m_image_stack.valid(), "Need to initialize data set first!")
@@ -183,8 +184,17 @@ protected:
 		UG_ASSERT( j < get_size_y() && j>= 0, "Invalid y: " << j << ", " << x[1] << ", " << m_x1);
 		UG_ASSERT( k < get_size_z() && k>= 0, "Invalid z: " << k << ", " << x[2] << ", " << m_x1);
 
-		return m_image_stack->get(i,j,k);
+		/*if (i+1==get_size_x() && j+1==get_size_y())
+		{
+			UG_LOG(get_size_x() << " " << get_size_y() << " "<< i+j*get_size_x());
+		}
+*/
+		//UG_LOG(i << " " << j << " "<< i+j*get_size_x() << std::endl);
 
+		return m_image_stack->get(i,j,k);
+		//return i+j*get_size_x();
+		//const_cast<ImageData<dim, TData>* >(this)->dummy++;
+		//return (dummy);
 		/*
 		unsigned char u[8];
 		u[0] = m_image_stack->get(i,j,k);

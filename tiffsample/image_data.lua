@@ -4,7 +4,7 @@ ug_load_script("ug_util.lua")
 InitUG(3, AlgebraType("CPU", 1));
 
 -- TiffImage Operations
-tiffFilename = "/Users/anaegel/Pictures/EugenSontak/03_Enhancedlightfix/03_EnhancedlightfixOrig.tif"
+tiffFilename = "/Users/anaegel/Pictures/EugenSontak/03_Enhancedlightfix/03_EnhancedlightfixOrig-2.tiff"
 gridName = "testImageData.ugx"
 
 tiff = TiffImageDataNumber3d()
@@ -24,22 +24,40 @@ local promesh_obj = Mesh()
 CreatePlane(promesh_obj, MakeVec(0,0,0), MakeVec(nx,0,0),  MakeVec(0,ny,0), MakeVec(nx,ny,0), 1, true)
 SelectAll(promesh_obj)
 
-numRefs = 6  -- 512 = 2**9
-for i=1,numRefs do
+local numRefs0 = 4  -- 512 = 2**9 -- 16=2**4
+for i=1,numRefs0 do
   Refine(promesh_obj, false)
 end
 SelectAll(promesh_obj)
 
-print(2^numRefs..", "..2^numRefs..", "..nz)
+print(2^numRefs0..", "..2^numRefs0..", "..nz)
 
 -- extrude to 3d
-Extrude(promesh_obj, MakeVec(0,0,dz), nz, true, true)
+Extrude(promesh_obj, MakeVec(0,0,dz*0.1), 1, true, true)
 SaveMesh(promesh_obj, gridName)
 
 -- ug4 operations
 
 
-local dom = util.CreateDomain(gridName, 0, requiredSubsets)
+--local dom = util.CreateDomain(gridName, 0, requiredSubsets)
+
+
+local dom = util.CreateDomain(gridName, 0)
+
+local refiner = HangingNodeDomainRefiner(dom);
+local maxRefEdgeLen = 512 / 16
+
+print("longEdges="..maxRefEdgeLen)
+
+for i=1,5 do
+  MarkAnisotropic_LongEdges(dom, refiner, maxRefEdgeLen)
+  maxRefEdgeLen = maxRefEdgeLen * 0.5
+  refiner:refine()
+  print(dom:domain_info():to_string())
+end
+
+
+-- local dom = util.CreateAndDistributeDomain(gridName, 1, 1)
 print("\ndomain-info:")
 print(dom:domain_info():to_string())
 
