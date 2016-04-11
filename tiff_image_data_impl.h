@@ -79,7 +79,7 @@ namespace ImageDataPlugin{
 template <int dim, typename TData=number>
 void ImageData :: modify_grid(Grid &grid)
 {
-	grid.
+	// grid.
 }
 
 template <int dim, typename TData=number>
