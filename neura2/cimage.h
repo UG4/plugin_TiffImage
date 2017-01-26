@@ -31,13 +31,14 @@
  */
 
 
-#ifndef _CIMAGE_H_
-#define _CIMAGE_H_
+#ifndef _NEURA2__CIMAGE_H_
+#define _NEURA2__CIMAGE_H_
 
 #include <string.h>
 #include <cstdlib>
 #include <cstdio>
-#include "../../TiffImage/neura2/constants.h"
+
+#include "constants.h"
 
 namespace neura2 {
 // Klasse zum Speichern von einzelnen Bildebenen, verwendet von Klasse C3DImage:

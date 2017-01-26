@@ -31,8 +31,8 @@
  */
 
 
-#ifndef TIFF_IMAGE_DATA_H
-#define TIFF_IMAGE_DATA_H
+#ifndef _IJKPLUGIN__TIFF_IMAGE_DATA_H
+#define _IJKPLUGIN__TIFF_IMAGE_DATA_H
 
 
 // extern headers

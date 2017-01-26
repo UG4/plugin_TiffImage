@@ -31,8 +31,8 @@
  */
 
 
-#ifndef _CSUBIMAGE_H_
-#define _CSUBIMAGE_H_
+#ifndef _NEURA2__CSUBIMAGE_H_
+#define _NEURA2__CSUBIMAGE_H_
 
 #include <stdio.h>
 #include <stdlib.h>

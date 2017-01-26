@@ -30,8 +30,8 @@
  * GNU Lesser General Public License for more details.
  */
 
-#ifndef _CIMAGEPROP_H_
-#define _CIMAGEPROP_H_
+#ifndef _NEURA2__CIMAGEPROP_H_
+#define _NEURA2__CIMAGEPROP_H_
 
 #include <stddef.h>
 
@@ -88,7 +88,7 @@ public:
 	
 	virtual int processPreview(CSubimage &, const int, int *, const int, float *, const int, char **) { return 1; }															 
 	
-  virtual int log(const int,
+	virtual int log(const int,
 									int *,
 									const int,
 									float *,

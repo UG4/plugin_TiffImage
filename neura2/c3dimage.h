@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef _C3DIMAGE_H_
-#define _C3DIMAGE_H_
+#ifndef _NEURA2__C3DIMAGE_H_
+#define _NEURA2__C3DIMAGE_H_
 
 #include <iostream>
 

@@ -32,8 +32,7 @@
 
 #include "bridge/util.h"
 
-// replace this with util_domain_dependent.h or util_algebra_dependent.h
-// to speed up compilation time
+// replace this with util_domain_dependent.h or util_algebra_dependent.h to accelerate compilation
 #include "bridge/util_domain_algebra_dependent.h"
 
 #include "common/ug_config.h"
@@ -47,7 +46,7 @@ using namespace ug::bridge;
 #include "pcl/pcl_util.h"
 #endif
 
-#include "../TiffImage/tiff_image_data.h"
+#include "tiff_image_data.h"
 
 namespace ug{
 namespace IJKRasterDataPlugin{

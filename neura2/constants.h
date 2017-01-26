@@ -30,8 +30,8 @@
  * GNU Lesser General Public License for more details.
  */
 
-#ifndef _CONSTANTS_H_
-#define _CONSTANTS_H_
+#ifndef _NEURA2__CONSTANTS_H_
+#define _NEURA2__CONSTANTS_H_
 
 namespace neura2 {
 
