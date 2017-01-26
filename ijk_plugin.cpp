@@ -50,7 +50,7 @@ using namespace ug::bridge;
 #include "../TiffImage/tiff_image_data.h"
 
 namespace ug{
-namespace ImageDataPlugin{
+namespace IJKRasterDataPlugin{
 
 /** 
  *  \defgroup sample_plugin Sample
@@ -59,7 +59,7 @@ namespace ImageDataPlugin{
  *  \{
  */
 
-static const char* tiffImagePluginName = "tiffImagePlugin";
+static const char* ijkRasterDataPluginName = "ijkRasterDataPlugin";
 
 void PluginSaysHello()
 {
@@ -75,12 +75,12 @@ void PluginSaysHello()
 
 void CrashFct(const string& reason)
 {
-	UG_THROW(tiffImagePluginName << " crashed: "<< reason);
+	UG_THROW(ijkRasterDataPluginName << " crashed: "<< reason);
 }
 
 void CrashFctFatal(const string& reason)
 {
-	UG_THROW(tiffImagePluginName << " crashed fatally: "<< reason);
+	UG_THROW(ijkRasterDataPluginName << " crashed fatally: "<< reason);
 }
 
 void PluginCrashes()
@@ -167,9 +167,7 @@ static void Dimension(Registry& reg, string grp)
 	string tag = GetDimensionTag<dim>();
 
 	{
-
-
-		typedef ImageData<dim, number> T;
+		typedef TiffImageData<dim, number> T;
 
 		string name = string("TiffImageDataNumber").append(suffix);
 		reg.add_class_<T, typename T::user_data_type>(name, grp)
@@ -231,11 +229,11 @@ static void Common(Registry& reg, string grp)
  * This function is called when the plugin is loaded.
  */
 extern "C" void
-InitUGPlugin_TiffImageData(Registry* reg, string grp)
+InitUGPlugin_IJKRasterData(Registry* reg, string grp)
 {
 	grp.append("/TiffImageData");
 
-	typedef ug::ImageDataPlugin::Functionality Functionality;
+	typedef ug::IJKRasterDataPlugin::Functionality Functionality;
 
 	try{
 		RegisterCommon<Functionality>(*reg,grp);
@@ -248,8 +246,7 @@ InitUGPlugin_TiffImageData(Registry* reg, string grp)
 }
 
 extern "C" UG_API void
-FinalizeUGPlugin_TiffImageData()
-{
-}
+FinalizeUGPlugin_IJKRasterData()
+{}
 
 }//	end of namespace ug

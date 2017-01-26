@@ -72,15 +72,11 @@
 #endif
 
 namespace ug{
-namespace ImageDataPlugin{
+
+namespace IJKRasterDataPlugin
+{
 
 // TODO: Add excessively long functions here
-
-template <int dim, typename TData=number>
-void ImageData :: modify_grid(Grid &grid)
-{
-	// grid.
-}
 
 template <int dim, typename TData=number>
 void set_corners_auto(MathVector<2> &x1)
@@ -96,5 +92,6 @@ void set_corners_auto(MathVector<3> &x1)
 
 
 
-} // namespace ImageDataPlugin
+} // namespace IJKRasterDataPlugin
+
 } // namespace ug

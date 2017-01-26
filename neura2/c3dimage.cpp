@@ -1,39 +1,63 @@
 /*
- *  c3dimage.cpp
- *  
+ * Copyright (c) 2011 - 2017 :  G-CSC, Goethe University Frankfurt
+ * Author: Daniel Jungblut
  *
- *  Created by Daniel on 20.11.08.
- *  Copyright 2008 __MyCompanyName__. All rights reserved.
+ * This file is part of UG4.
  *
+ * UG4 is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License version 3 (as published by the
+ * Free Software Foundation) with the following additional attribution
+ * requirements (according to LGPL/GPL v3 §7):
+ *
+ * (1) The following notice must be displayed in the Appropriate Legal Notices
+ * of covered and combined works: "Based on UG4 (www.ug4.org/license)".
+ *
+ * (2) The following notice must be displayed at a prominent place in the
+ * terminal output of covered works: "Based on UG4 (www.ug4.org/license)".
+ *
+ * (3) The following bibliography is recommended for citation and must be
+ * preserved in all covered files:
+ * "Reiter, S., Vogel, A., Heppner, I., Rupp, M., and Wittum, G. A massively
+ *   parallel geometric multigrid solver on hierarchically distributed grids.
+ *   Computing and visualization in science 16, 4 (2013), 151-164"
+ * "Vogel, A., Reiter, S., Rupp, M., Nägel, A., and Wittum, G. UG4 -- a novel
+ *   flexible software system for simulating pde based models on high performance
+ *   computers. Computing and visualization in science 16, 4 (2013), 165-179"
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
  */
 
 #ifndef _C3DIMAGE_CPP_
 #define _C3DIMAGE_CPP_
 
 
-#include "../../TiffImage/neura2/c3dimage.h"
+#include "c3dimage.h"
 
 namespace neura2 {
+
 int C3DImage::read_dat(const char * filename) {
 	
-  FILE * file;
+	FILE* file;
 	
-	if((file = fopen(filename, "rb")) == NULL) {
+	if((file = fopen(filename, "rb")) == NULL)
+	{
 	  std::cout << "File " << filename << " not found ... exiting." << std::endl;
-		return 1;
-  }
+	  return 1;
+	}
 	
 	fread(&size_x, 1, 4, file);
-  fread(&size_y, 1, 4, file);
-  fread(&size_z, 1, 4, file);
+	fread(&size_y, 1, 4, file);
+	fread(&size_z, 1, 4, file);
   
 	std::cout << "File " << filename << " has dimensions " << size_x << " x " << size_y << " x " << size_z << std::endl;
 	
-  fseek(file, 12, SEEK_CUR);
+	fseek(file, 12, SEEK_CUR);
 	
 	p_images = new CImage[size_z];
 
-	
 	for(int zz = 0; zz < size_z; zz++) 
 		p_images[zz].read(file, size_x, size_y);
 	

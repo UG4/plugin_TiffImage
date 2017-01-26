@@ -57,22 +57,25 @@
 
 #include "neura2/c3dimage.h"
 
-namespace ug{
-namespace ImageDataPlugin{
+namespace ug {
+
+namespace IJKRasterDataPlugin {
 
 
+typedef neura2::C3DImage ImageContainer;
 
-
-class ImageContainer : public neura2::C3DImage
+/*class ImageContainer : public neura2::C3DImage
 {
 public:
 	typedef neura2::C3DImage base_type;
 
 	ImageContainer()
 	: base_type()
-	{}
+	{
 
-};
+	}
+
+};*/
 
 SmartPtr<ImageContainer> CreateTiffImageContainer(const char *filename)
 {
@@ -83,12 +86,7 @@ SmartPtr<ImageContainer> CreateTiffImageContainer(const char *filename)
 	return spImgContainer;
 };
 
-/*
-void CreateGrid(Grid& grid, SmartPtr<>)
-{
 
-}
-*/
 
 
 /*
@@ -98,28 +96,27 @@ void CreateGrid(Grid& grid, SmartPtr<>)
  *
  * NX = NY = 2**p
  *
- *
  * */
 
 
 template <int dim, typename TData=number>
-class ImageData : public StdGlobPosData<ImageData<dim, TData>, TData, dim, void>
+class TiffImageData : public StdGlobPosData<TiffImageData<dim, TData>, TData, dim, void>
 {
 
 public:
 
-	typedef StdGlobPosData<ImageData<dim, TData>, TData, dim, void> base_type;
+	typedef StdGlobPosData<TiffImageData<dim, TData>, TData, dim, void> base_type;
 	typedef UserData<TData, dim> user_data_type;
 
-	ImageData() : m_x0(0.0), m_x1(1.0), m_image_stack(SPNULL)
+	TiffImageData() : m_x0(0.0), m_x1(1.0), m_image_stack(SPNULL)
 	{}
 
-	virtual ~ImageData()
+	virtual ~TiffImageData()
 	{}
 
 
 public:
-	// evaluate field at (physical) pos x
+	//! evaluate field at (physical) pos x
 	inline void evaluate(TData& val, const MathVector<dim>& x, number time, int si) const
 	{
 
@@ -138,33 +135,27 @@ public:
 	{ m_x0 = x0; m_x1 = x1;}
 
 
-
+	//! read data from file
 	void init(std::string filename)
 	{
 		read_data(filename.c_str());
 	}
 
 	// short cuts
-		int get_size_x() const { return m_image_stack->get_size_x(); }
-		int get_size_y() const { return m_image_stack->get_size_y(); }
-		int get_size_z() const { return m_image_stack->get_size_z(); }
+	int get_size_x() const { return m_image_stack->get_size_x(); }
+	int get_size_y() const { return m_image_stack->get_size_y(); }
+	int get_size_z() const { return m_image_stack->get_size_z(); }
 
 protected:
 
 	template <typename VT> void set_corners_auto(VT &x) {}
 
-	void modify_grid(Grid& grid);
 
-	//double dummy;
-	//! read data
+	//! read data from file
 	void read_data (const char* filename)
 	{
-
-		// read data
 		m_image_stack = CreateTiffImageContainer(filename);
-		//dummy = 0;
 		set_corners_auto(m_x1);
-
 	}
 
 	//! return cell data for a given physical coordinate
@@ -210,7 +201,7 @@ protected:
 	}
 
 
-	//! mapping physical coordinate to (continuous) ijk coordinate
+	//! map physical coordinate to (continuous) ijk coordinate
 	void coord2ijk(const MathVector<dim>& coord, MathVector<dim>& ijk) const
 	{
 
@@ -223,9 +214,6 @@ protected:
 		ijk[2] = (coord[2]-m_x0[2])/(m_x1[2]-m_x0[2])*nz;
 	}
 
-
-
-
 protected:
 
 	MathVector<dim> m_x0; 		// lower left corner
@@ -235,37 +223,12 @@ protected:
 
 };
 
-/*
-template <typename TData, int dim, typename TRet = void>
-class TiffImageData
-		: public StdGlobPosData<TiffImageData<TData, dim, TRet>, TData, dim, TRet>
-{
-
-public:
-
-	TiffImageData(){
-
-	};
-	virtual ~TiffImageData()
-	{
-
-
-	}
-	inline TRet evaluate(TData& D, const MathVector<dim>& x, number time, int si) const;
-
-
-private:
 
 
 
 
-};
-*/
 
-
-
-
-} // namespace ImageDataPlugin
+} // namespace IJKRasterDataPlugin
 } // namespace ug
 
 //#include "tiff_image_data_impl.h"

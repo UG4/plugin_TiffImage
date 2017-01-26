@@ -36,7 +36,7 @@
 ################################################################################
 
 # Name of your plugin and sources.
-set(pluginName	TiffImageData)
+set(pluginName	IJKRasterData)
 set(SOURCES		ijk_plugin.cpp)
 
 set(SOURCES ${SOURCES}
@@ -49,10 +49,20 @@ LINK_DIRECTORIES(/opt/local/lib)
 ################################################################################
 cmake_minimum_required(VERSION 2.6)
 
+
 project(UG_PLUGIN_${pluginName})
+
 
 # include the definitions and dependencies for ug-plugins.
 include(${UG_ROOT_CMAKE_PATH}/ug_plugin_includes.cmake)
+
+# include FindTiff module 
+INCLUDE(FindTiff)
+if(TIFF_FOUND)
+	include_directories(${TIFF_INCLUDE_DIR})
+else(TIFF_FOUND)
+	message(WARNING, "LibTiff not found!")
+endif(TIFF_FOUND)
 
 if(buildEmbeddedPlugins)
 	# add the sources to ug4's sources
@@ -60,5 +70,5 @@ if(buildEmbeddedPlugins)
 else(buildEmbeddedPlugins)
 	# create a shared library from the sources and link it against ug4.
 	add_library(${pluginName} SHARED ${SOURCES})
-	target_link_libraries (${pluginName} ug4 tiff)
+	target_link_libraries (${pluginName} ug4 ${TIFF_LIBRARY})
 endif(buildEmbeddedPlugins)
