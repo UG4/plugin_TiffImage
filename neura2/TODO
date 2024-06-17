@@ -2,5 +2,5 @@ Comment by anaegel, April 2016
 
 Files in this subdir are taken from Daniel Jungblut's Neura 2 implementation. I added a namespace 'neura2' to distinguish this from UG. 
 On the long run, one could consider refactoring Neura2 (with namespaces) and then use it as a library.
-In this case, this sub dir becomes obsolete.
+In this case, this subdir becomes obsolete.
 

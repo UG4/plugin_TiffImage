@@ -179,7 +179,6 @@ static void Dimension(Registry& reg, string grp)
 		   .add_method("get_size_z", &T::get_size_z)
 		   .set_construct_as_smart_pointer(true);
 		reg.add_class_to_group(name, "TiffImageDataNumber", tag);
-
 	}
 }
 
@@ -230,16 +229,16 @@ static void Common(Registry& reg, string grp)
 extern "C" void
 InitUGPlugin_IJKRasterData(Registry* reg, string grp)
 {
-	grp.append("/TiffImageData");
+	grp.append("/IJKRasterData");
 
 	typedef ug::IJKRasterDataPlugin::Functionality Functionality;
 
 	try{
 		RegisterCommon<Functionality>(*reg,grp);
 		RegisterDimensionDependent<Functionality>(*reg,grp);
-		RegisterDomainDependent<Functionality>(*reg,grp);
-		RegisterAlgebraDependent<Functionality>(*reg,grp);
-		RegisterDomainAlgebraDependent<Functionality>(*reg,grp);
+	//	RegisterDomainDependent<Functionality>(*reg,grp);
+	//	RegisterAlgebraDependent<Functionality>(*reg,grp);
+	//	RegisterDomainAlgebraDependent<Functionality>(*reg,grp);
 	}
 	UG_REGISTRY_CATCH_THROW(grp);
 }

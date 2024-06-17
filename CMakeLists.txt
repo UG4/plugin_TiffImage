@@ -56,8 +56,9 @@ project(UG_PLUGIN_${pluginName})
 # include the definitions and dependencies for ug-plugins.
 include(${UG_ROOT_CMAKE_PATH}/ug_plugin_includes.cmake)
 
-# include FindTiff module 
-INCLUDE(FindTiff)
+# include libTIFF module 
+find_package(TIFF REQUIRED)
+
 if(TIFF_FOUND)
 	include_directories(${TIFF_INCLUDE_DIR})
 else(TIFF_FOUND)

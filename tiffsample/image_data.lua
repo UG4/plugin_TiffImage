@@ -4,7 +4,7 @@ ug_load_script("ug_util.lua")
 InitUG(3, AlgebraType("CPU", 1));
 
 -- TiffImage Operations
-tiffFilename = "/Users/anaegel/Pictures/EugenSontak/03_Enhancedlightfix/03_EnhancedlightfixOrig-2.tiff"
+tiffFilename = "03_EnhancedlightfixOrig-2.tiff"
 gridName = "testImageData.ugx"
 
 tiff = TiffImageDataNumber3d()
