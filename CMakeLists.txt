@@ -42,7 +42,7 @@ set(SOURCES		ijk_plugin.cpp)
 set(SOURCES ${SOURCES}
 	neura2/c3dimage.cpp
 	neura2/c3dimage_tiff.cpp)
-LINK_DIRECTORIES(/opt/local/lib)	
+# LINK_DIRECTORIES(/opt/local/lib)	
 	
 ################################################################################
 # The code below doesn't have to be changed (usually)
@@ -61,10 +61,15 @@ find_package(TIFF REQUIRED)
 
 if(TIFF_FOUND)
 	include_directories(${TIFF_INCLUDE_DIR})
+	MESSAGE (STATUS "TIFF: ${TIFF_LIBRARIES}")
 else(TIFF_FOUND)
 	message(WARNING, "LibTiff not found!")
 endif(TIFF_FOUND)
 
+################################################################################
+# Classic binding (static or dynamic plugin).
+################################################################################
+if(NOT USE_PYBIND11)
 if(buildEmbeddedPlugins)
 	# add the sources to ug4's sources
 	EXPORTSOURCES(${CMAKE_CURRENT_SOURCE_DIR} ${SOURCES})
@@ -73,3 +78,23 @@ else(buildEmbeddedPlugins)
 	add_library(${pluginName} SHARED ${SOURCES})
 	target_link_libraries (${pluginName} ug4 ${TIFF_LIBRARY})
 endif(buildEmbeddedPlugins)
+endif(NOT USE_PYBIND11)
+
+################################################################################
+# Python binding (static plugin, dynamic python interface).
+################################################################################
+if(USE_PYBIND11)
+	# Static plugin.
+	include_directories(${SUPERLU_INCLUDE_DIRS})
+	add_library(IJKDataPlugin STATIC ${SOURCES})
+
+	SET(myPluginSources ijk_plugin_pybind.cpp)
+	
+	# First argument must match module name in PYBIND11_MODULE call
+	python_add_library(pyijkdata MODULE ${myPluginSources} ${SOURCES} WITH_SOABI)
+	target_link_libraries (pyijkdata PRIVATE IJKDataPlugin ug4_s ${TIFF_LIBRARY})
+	
+	set_target_properties(pyijkdata PROPERTIES INSTALL_RPATH "$ORIGIN/..:$ORIGIN/../../../lib")
+	install(TARGETS pyijkdata LIBRARY DESTINATION ug4py COMPONENT pymodules)
+
+endif(USE_PYBIND11)

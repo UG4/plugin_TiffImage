@@ -50,6 +50,8 @@
 #include "lib_disc/quadrature/quadrature_provider.h"
 #include "lib_disc/reference_element/reference_mapping_provider.h"
 
+#include "lib_disc/spatial_disc/user_data/common_user_data/raster_user_data.h"
+
 #ifdef UG_FOR_LUA
 #include "bindings/lua/lua_user_data.h"
 #endif
@@ -64,18 +66,6 @@ namespace IJKRasterDataPlugin {
 
 typedef neura2::C3DImage ImageContainer;
 
-/*class ImageContainer : public neura2::C3DImage
-{
-public:
-	typedef neura2::C3DImage base_type;
-
-	ImageContainer()
-	: base_type()
-	{
-
-	}
-
-};*/
 
 SmartPtr<ImageContainer> CreateTiffImageContainer(const char *filename)
 {

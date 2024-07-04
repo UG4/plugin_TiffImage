@@ -112,6 +112,21 @@ void PluginCrashesFatal()
  */
 struct Functionality
 {
+	/**
+	 * Function called for the registration of Domain and Algebra independent parts
+	 * of the plugin. All Functions and Classes not depending on Domain and Algebra
+	 * are to be placed here when registering.
+	 *
+	 * @param reg				registry
+	 * @param parentGroup		group for sorting of functionality
+	 */
+	static void Common(Registry& reg, string grp)
+	{
+		/*reg.add_function("PluginSaysHello", &PluginSaysHello, grp)
+			.add_function("PluginCrashes", &PluginCrashes, grp)
+			.add_function("PluginCrashesFatal", &PluginCrashesFatal, grp);*/
+	}
+
 
 /**
  * Function called for the registration of Domain and Algebra dependent parts
@@ -158,8 +173,8 @@ static void Domain(Registry& reg, string grp)
  * @param reg				registry
  * @param parentGroup		group for sorting of functionality
  */
-template <int dim>
-static void Dimension(Registry& reg, string grp)
+template <int dim, typename TRegistry=ug::bridge::Registry>
+static void Dimension(TRegistry& reg, string grp)
 {
 //	useful defines
 	string suffix = GetDimensionSuffix<dim>();
@@ -169,7 +184,7 @@ static void Dimension(Registry& reg, string grp)
 		typedef TiffImageData<dim, number> T;
 
 		string name = string("TiffImageDataNumber").append(suffix);
-		reg.add_class_<T, typename T::user_data_type>(name, grp)
+		reg.template add_class_<T, typename T::user_data_type>(name, grp)
     	   .template add_constructor<void (*)() >("")
 		   .add_method("init", &T::init)
 		   .add_method("set_corner", &T::set_corner)
@@ -200,21 +215,6 @@ static void Algebra(Registry& reg, string grp)
 
 }
 
-/**
- * Function called for the registration of Domain and Algebra independent parts
- * of the plugin. All Functions and Classes not depending on Domain and Algebra
- * are to be placed here when registering.
- *
- * @param reg				registry
- * @param parentGroup		group for sorting of functionality
- */
-static void Common(Registry& reg, string grp)
-{
-	reg.add_function("PluginSaysHello", &PluginSaysHello, grp)
-		.add_function("PluginCrashes", &PluginCrashes, grp)
-		.add_function("PluginCrashesFatal", &PluginCrashesFatal, grp);
-}
-
 }; // end Functionality
 
 // end group sample_plugin
@@ -226,21 +226,37 @@ static void Common(Registry& reg, string grp)
 /**
  * This function is called when the plugin is loaded.
  */
-extern "C" void
-InitUGPlugin_IJKRasterData(Registry* reg, string grp)
+template <typename TRegistry=ug::bridge::Registry>
+void RegisterBridge_IJKRasterData(TRegistry* reg, string grp)
 {
 	grp.append("/IJKRasterData");
 
 	typedef ug::IJKRasterDataPlugin::Functionality Functionality;
 
 	try{
-		RegisterCommon<Functionality>(*reg,grp);
+	//	RegisterCommon<Functionality>(*reg,grp);
 		RegisterDimensionDependent<Functionality>(*reg,grp);
 	//	RegisterDomainDependent<Functionality>(*reg,grp);
 	//	RegisterAlgebraDependent<Functionality>(*reg,grp);
 	//	RegisterDomainAlgebraDependent<Functionality>(*reg,grp);
 	}
 	UG_REGISTRY_CATCH_THROW(grp);
+}
+
+#ifdef UG_USE_PYBIND11 // Expose for pybind11.
+namespace IJKRasterDataPlugin
+{
+	void InitUGPlugin(ug::pybind::Registry* reg, string grp)
+	{
+		RegisterBridge_IJKRasterData<ug::pybind::Registry> (reg,grp);
+	}
+}
+#endif
+
+extern "C" void
+InitUGPlugin_IJKRasterData(Registry* reg, string grp)
+{
+	RegisterBridge_IJKRasterData<Registry> (reg,grp);
 }
 
 extern "C" UG_API void

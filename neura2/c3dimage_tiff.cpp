@@ -54,6 +54,7 @@ int C3DImage::read_tiff(const char * filename) {
 	}
 	
 	// Überprüfen, dass das Bild im richtigen Format gespeichert ist:
+	std::cout << "Checking format...";
 	unsigned short us_photometric = 0;
 	unsigned short us_bits_per_sample = 0;
 	TIFFGetField(tiff, TIFFTAG_PHOTOMETRIC, &us_photometric);
@@ -69,6 +70,7 @@ int C3DImage::read_tiff(const char * filename) {
 	TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &size_y);
 	
 	// Durchgehen der einzelnen Ordner um Bildstackhöhe (size_z) zu bestimmen:
+	std::cout << "Reading file(s)...";
 	int i_start_dir = TIFFCurrentDirectory(tiff);
 	do {
 		size_z ++;
@@ -84,7 +86,7 @@ int C3DImage::read_tiff(const char * filename) {
 			return 1;
 		}
 	} while(TIFFReadDirectory(tiff));
-	
+	std::cout << size_z << " files read!" << std::endl;
 	
 	// Allokieren von Speicher für die einzelnen Bilder:
 	p_images = new CImage[size_z];
@@ -95,10 +97,11 @@ int C3DImage::read_tiff(const char * filename) {
 	}
 	
   // Zurücksetzen des Tiffs auf das erste Bild:
+	std::cout << "Reading data...";
 	TIFFSetDirectory(tiff, i_start_dir);
 	
 	// Allokieren vom temporärem Speicher zum laden der Bilder:
-	uchar * data = new uchar[size_x * size_y];
+	uchar* data = new uchar[size_x * size_y];
 	
 	if(data == NULL) {
 		std::cout << "Error while allocating memory for data in C3DImage::read_tiff ... exiting." << std::endl;
