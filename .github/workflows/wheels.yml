@@ -37,7 +37,6 @@ jobs:
           python3 ../ughub/ughub.py install ugcore PybindForUG4
           python3 ../ughub/ughub.py git submodule init
           python3 ../ughub/ughub.py git submodule update
-          export UG_ROOT_CMAKE_PATH=$PWD
           
       - name: Switch to Pybind feature branch(es), if any.
         run: python3 ughub/ughub.py git checkout feature-pybind11
