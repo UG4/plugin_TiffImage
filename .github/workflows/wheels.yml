@@ -30,10 +30,12 @@ jobs:
 
       - name: Install UG4 packages
         run: |
-          python3 ughub/ughub.py init
-          python3 ughub/ughub.py install ugcore PybindForUG4
-          python3 ughub/ughub.py git submodule init
-          python3 ughub/ughub.py git submodule update
+          mkdir ug4-git
+          cd ug4-git
+          python3 ../ughub/ughub.py init
+          python3 ../ughub/ughub.py install ugcore PybindForUG4
+          python3 ../ughub/ughub.py git submodule init
+          python3 ../ughub/ughub.py git submodule update
           
       - name: Switch to Pybind feature branch(es), if any.
         run: python3 ughub/ughub.py git checkout feature-pybind11
