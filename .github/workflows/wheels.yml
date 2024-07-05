@@ -1,0 +1,106 @@
+name: Build wheels
+
+# on: [push, pull_request]
+on: workflow_dispatch
+
+jobs:
+  ######################
+  # Job: Build wheel
+  ######################
+  build-wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        # os: [macos-13] # 12 oldest
+        #os: [macos-latest, ubuntu-latest]
+        #os: [ubuntu-latest, windows-latest, macos-latest, macos-13]
+
+    steps:
+
+      ## Used to host cibuildwheel
+      # - uses: actions/setup-python@v5
+      - name: Checkout self
+        uses: actions/checkout@v4
+      
+      - name: Checkout ughub
+        run: |
+          git clone https://github.com/UG4/ughub.git
+
+      - name: Install UG4 packages
+        run: |
+          python3 ughub/ughub.py init
+          python3 ughub/ughub.py install ugcore PybindForUG4
+          python3 ughub/ughub.py git submodule init
+          python3 ughub/ughub.py git submodule update
+          
+      - name: Switch to Pybind feature branch(es), if any.
+        run: python3 ughub/ughub.py git checkout feature-pybind11
+        continue-on-error: true
+          
+      #- name: Checkout ugcore
+      #  uses: actions/checkout@v4
+      #  with:
+      #    repository: UG4/ugcore
+      #    path: ugcore
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.18.0
+        env:
+          CIBW_BUILD_VERBOSITY:  1
+          # CIBW_REPAIR_WHEEL_COMMAND: ''
+          CIBW_BUILD: cp312-*
+          # CIBW_BUILD: cp310-* cp312-*
+          # Skip builds for 32-bit builds and some others...
+          CIBW_SKIP: "*-win32 *-musllinux_* *linux_i686 *linux_s390x *linux_aarch64 *linux_s390x" 
+
+          
+          # Environment variables.
+          # CIBW_ENVIRONMENT: CFLAGS='-fPIC -fvisibility=hidden' CXXFLAGS='-fPIC -fvisibility=hidden'
+          # Set flags on linux 
+          # CIBW_ENVIRONMENT_LINUX: 
+          # CIBW_ENVIRONMENT_WINDOWS:
+
+          # Only on Linux, we must forward environment variables explitly. 
+          # CIBW_ENVIRONMENT_PASS_LINUX: CFLAGS CXXFLAGS
+          
+        with:
+          package-dir: .
+          output-dir: wheelhouse
+          # config-file: "pyproject.toml"
+          config-file: "{package}/pyproject.toml"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ug4py-basic-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  ########################        
+  # Job: Publish to PyPI        
+  ########################  
+  pypi-publish:
+    name: Upload release to PyPI
+    # if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
+    needs:
+    - build-wheels
+    runs-on: ubuntu-latest
+    # Specifying a GitHub environment is optional, but strongly encouraged
+    environment: release
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+    steps:
+      # retrieve your distributions here
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ug4py-basic-wheels-*
+          merge-multiple: true
+          path: dist/
+          
+      - run: ls -R dist
+          
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        
