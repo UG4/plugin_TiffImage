@@ -47,6 +47,7 @@ using namespace ug::bridge;
 #endif
 
 #include "tiff_image_data.h"
+#include "multilayer_raster.hpp"
 
 namespace ug{
 namespace IJKRasterDataPlugin{
@@ -195,6 +196,22 @@ static void Dimension(TRegistry& reg, string grp)
 		   .set_construct_as_smart_pointer(true);
 		reg.add_class_to_group(name, "TiffImageDataNumber", tag);
 	}
+
+
+	{
+		// Multilevel raster (e.g. COG)
+		string name = string("MultilevelRasterData").append(suffix);
+		typedef MultilevelRasterData<number, dim> T;
+		typedef typename T::base_type TBase;
+		string fullName = name + suffix;
+
+		reg.template add_class_<T,TBase>(fullName, grp)
+			.template add_constructor<void (*)()>("MultilevelRasterData")
+			.set_construct_as_smart_pointer(true);
+
+	}
+
+
 }
 
 /**
