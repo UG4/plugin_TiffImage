@@ -203,10 +203,10 @@ static void Dimension(TRegistry& reg, string grp)
 		string name = string("MultilevelRasterData").append(suffix);
 		typedef MultilevelRasterData<number, dim> T;
 		typedef typename T::base_type TBase;
-		string fullName = name + suffix;
 
-		reg.template add_class_<T,TBase>(fullName, grp)
+		reg.template add_class_<T,TBase>(name, grp)
 			.template add_constructor<void (*)()>("MultilevelRasterData")
+			.add_method("set_filter", &T::set_filter)
 			.set_construct_as_smart_pointer(true);
 
 	}

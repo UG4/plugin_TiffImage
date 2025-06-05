@@ -25,14 +25,18 @@ class MultilevelRasterData
 	public:
 		typedef CplUserData<TData, dim> base_type;
 
-		MultilevelRasterData(){};
+		MultilevelRasterData() : hfilter(0.0) {};
+
+		void set_filter(double lambda) {hfilter = lambda;}
 
 		// Implement StdUserData.
 		void operator() (TData& value,
 								 const MathVector<dim>& globIP,
 								 number time, int si) const override
 		{
-			// TODO
+			// TODO: Add code!
+			std::cerr << __FILE__ << ":" <<__LINE__ << std::endl;
+			value = globIP[0]*globIP[dim-1]*hfilter;
 			UG_ASSERT(0, "ERROR: Implement!");
 		};
 
@@ -41,7 +45,8 @@ class MultilevelRasterData
 								const MathVector<dim> vGlobIP[],
 								number time, int si, const size_t nip) const override
 		{
-			// TODO
+			// TODO: Add code!
+			std::cerr << __FILE__ << ":" <<__LINE__ << std::endl;
 			UG_ASSERT(0, "ERROR: Implement!");
 		};
 
@@ -50,17 +55,23 @@ class MultilevelRasterData
 		void compute(LocalVector* u, GridObject* elem,
 		        const MathVector<dim> vCornerCoords[], bool bDeriv = false) override
 		{
-			// TODO
-			UG_ASSERT(0, "ERROR: Implement!");
+
+			std::cerr << __FILE__ << ":" <<__LINE__ << std::endl;
+			eval_elem(elem, vCornerCoords);
 
 			const number t = this->time();
 			const int si = this->subset();
 
-	/*
 			for(size_t s = 0; s < this->num_series(); ++s)
 				for(size_t ip = 0; ip < this->num_ip(s); ++ip)
-					this->getImpl().evaluate(this->value(s,ip), this->ip(s, ip), t, si);
-					*/
+				{
+					// Evaluation point.
+					auto x = this->ip(s, ip);
+
+					// TODO: Add code!
+					this->value(s,ip) = x[0]*x[dim-1];
+				}
+
 		}
 
 		// Compute values for an IP series
@@ -69,9 +80,11 @@ class MultilevelRasterData
 		                     const MathVector<dim> vCornerCoords[],
 		                     bool bDeriv = false) override
 		{
-			// TODO
-			UG_ASSERT(0, "ERROR: Implement!");
-			const int si = this->subset();
+			std::cerr << __FILE__ << ":" <<__LINE__ << std::endl;
+
+			//const int si = this->subset();
+			eval_elem(elem, vCornerCoords);
+
 
 		/*
 			for(size_t s = 0; s < this->num_series(); ++s)
@@ -93,10 +106,23 @@ class MultilevelRasterData
 		                     LocalVector* u,
 		                     const MathMatrix<refDim, dim>* vJT = NULL) const
 		{
-			// TODO
-			const ReferenceObjectID roid = elem->reference_object_id();
 
-			// typedef geometry_traits<GridObject>::Descriptor TObjDesc;
+			std::cerr << __FILE__ << ": " <<__LINE__ << std::endl;
+			eval_elem(elem, vCornerCoords);
+
+			for (int i=0; i<nip; ++i)
+			{
+				// TODO: Implement.
+				vValue[i] = vCornerCoords[0]*vCornerCoords[dim-1];
+			}
+
+
+		}
+
+		void eval_elem( GridObject* elem,
+                const MathVector<dim> vCornerCoords[]) const
+		{
+			const ReferenceObjectID roid = elem->reference_object_id();
 
 			uint nvertices = 0;
 			MathVector<dim> ll, ur;
@@ -112,19 +138,13 @@ class MultilevelRasterData
 				nvertices = 4;
 			}
 
-			std::cerr << "I am elem " << elem << "(" << roid << "). " << "with corners:" << std::endl;
+			std::cerr << "This is elem " << elem << "(" << roid << ") " << "with corners:" << std::endl;
 			for (int i=0; i< nvertices;  ++i)
 			{
 				std::cerr <<vCornerCoords[i] << std::endl;
 			}
-			std::cerr << "and bounding-box "<< ll << ur << std::endl;
+			std::cerr << "and bounding-box given by "<< ll <<" and " << ur <<"." << std::endl;
 
-			std::cerr << "requested for " << std::endl;
-
-
-
-
-			UG_ASSERT(0, "ERROR: Implement!");
 		}
 
 		bool requires_grid_fct() const override {return false;}
@@ -137,6 +157,10 @@ class MultilevelRasterData
 
 		///	const access to implementation
 			const TImpl& getImpl() const {return static_cast<const TImpl&>(*this);}*/
+
+	protected:
+		double hfilter;
+
 };
 
 
