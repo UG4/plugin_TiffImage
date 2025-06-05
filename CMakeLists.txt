@@ -39,21 +39,20 @@
 set(pluginName	IJKRasterData)
 set(SOURCES		ijk_plugin.cpp)
 
+# Tiff-plugin.
 set(SOURCES ${SOURCES}
 	neura2/c3dimage.cpp
 	neura2/c3dimage_tiff.cpp)
-# LINK_DIRECTORIES(/opt/local/lib)	
+
 	
 ################################################################################
 # The code below doesn't have to be changed (usually)
 ################################################################################
-cmake_minimum_required(VERSION 2.6)
 
-
+cmake_minimum_required(VERSION 2.8.12...3.20)
 project(UG_PLUGIN_${pluginName})
 
-
-# include the definitions and dependencies for ug-plugins.
+# Include the definitions and dependencies for ug-plugins.
 include(${UG_ROOT_CMAKE_PATH}/ug_plugin_includes.cmake)
 
 # include libTIFF module 
@@ -61,9 +60,11 @@ find_package(TIFF REQUIRED)
 
 if(TIFF_FOUND)
 	include_directories(${TIFF_INCLUDE_DIR})
-	MESSAGE (STATUS "TIFF: ${TIFF_LIBRARIES}")
+	MESSAGE (STATUS "TIFF-lib: ${TIFF_LIBRARIES}")
+	MESSAGE (STATUS "TIFF-inc: ${TIFF_INCLUDE_DIR}")
+	MESSAGE (STATUS "TIFF-pybind11: ${USE_PYBIND11}")
 else(TIFF_FOUND)
-	message(WARNING, "LibTiff not found!")
+	message(FATAL, "LibTiff not found!")
 endif(TIFF_FOUND)
 
 ################################################################################
@@ -84,15 +85,23 @@ endif(NOT USE_PYBIND11)
 # Python binding (static plugin, dynamic python interface).
 ################################################################################
 if(USE_PYBIND11)
+	
 	# Static plugin.
-	include_directories(${SUPERLU_INCLUDE_DIRS})
+	include_directories(${TIFF_INCLUDE_DIR})
+	MESSAGE (STATUS "TIFF-inc: ${TIFF_INCLUDE_DIR}")
+	
+	# Create (static) library
 	add_library(IJKDataPlugin STATIC ${SOURCES})
+	target_include_directories (IJKDataPlugin PUBLIC ${TIFF_INCLUDE_DIR} )
 
+	# Python binding.
 	SET(myPluginSources ijk_plugin_pybind.cpp)
 	
 	# First argument must match module name in PYBIND11_MODULE call
 	python_add_library(pyijkdata MODULE ${myPluginSources} ${SOURCES} WITH_SOABI)
+	
 	target_link_libraries (pyijkdata PRIVATE IJKDataPlugin ug4_s ${TIFF_LIBRARY})
+	target_include_directories (pyijkdata PUBLIC ${TIFF_INCLUDE_DIR} )
 	
 	set_target_properties(pyijkdata PROPERTIES INSTALL_RPATH "$ORIGIN/..:$ORIGIN/../../../lib")
 	install(TARGETS pyijkdata LIBRARY DESTINATION ug4py COMPONENT pymodules)
