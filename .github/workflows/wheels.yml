@@ -23,6 +23,8 @@ jobs:
 
       - name: Move sources.
         run: |
+          mkdir ug4-git
+          mkdir ug4-git/plugins
           mkdir ug4-git/plugins/TiffImage
           mv CMakeLists.txt ug4-git/plugins/TiffImage
           mv libtiff ug4-git/plugins/TiffImage
