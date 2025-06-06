@@ -4,9 +4,9 @@ requires = [
     "cmake>=3.18",
     "ninja",
     "pybind11",
-    "ug4py-base>=0.1.5",
-    "numpy",
-    "libtiff"
+    "ug4py-base>=0.1.5"
+   # "numpy",
+   # "libtiff"
 ]
 build-backend = "scikit_build_core.build"
 
