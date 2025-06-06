@@ -16,8 +16,17 @@ jobs:
 
     steps:
 
-      ## Used to host cibuildwheel
-      # - uses: actions/setup-python@v5
+      - name: Checkout self
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Move sources.
+        run: |
+          mkdir ug4-git/plugins/TiffImage
+          mv CMakeLists.txt ug4-git/plugins/TiffImage
+          mv libtiff ug4-git/plugins/TiffImage
+          mv src ug4-git/plugins/TiffImage
 
       - name: Checkout ughub
         run: |
@@ -35,11 +44,6 @@ jobs:
           python3 ../ughub/ughub.py git submodule init
           python3 ../ughub/ughub.py git submodule update
           
-      - name: Checkout self
-        uses: actions/checkout@v4
-        with:
-          path: "plugins/TiffImage"
-          submodules: true
 
       - name: Switch to Pybind feature branch(es), if any.
         run: python3 ../ughub/ughub.py git checkout feature-pybind11
