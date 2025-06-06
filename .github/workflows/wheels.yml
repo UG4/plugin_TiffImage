@@ -18,19 +18,16 @@ jobs:
 
       ## Used to host cibuildwheel
       # - uses: actions/setup-python@v5
-      - name: Checkout self
-        uses: actions/checkout@v4
-      
+
       - name: Checkout ughub
         run: |
           git clone https://github.com/UG4/ughub.git
 
-      - name: Install libtiff
-        run:  sudo apt-get install libtiff-dev libtiff6
+      #- name: Install libtiff
+      #  run:  sudo apt-get install libtiff-dev libtiff6
 
       - name: Install UG4 packages
         run: |
-          
           mkdir ug4-git
           cd ug4-git
           python3 ../ughub/ughub.py init
@@ -38,15 +35,15 @@ jobs:
           python3 ../ughub/ughub.py git submodule init
           python3 ../ughub/ughub.py git submodule update
           
+      - name: Checkout self
+        uses: actions/checkout@v4
+        with:
+          path: "plugins/TiffImage"
+          submodules: true
+
       - name: Switch to Pybind feature branch(es), if any.
         run: python3 ../ughub/ughub.py git checkout feature-pybind11
         continue-on-error: true
-          
-      #- name: Checkout ugcore
-      #  uses: actions/checkout@v4
-      #  with:
-      #    repository: UG4/ugcore
-      #    path: ugcore
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.18.0
