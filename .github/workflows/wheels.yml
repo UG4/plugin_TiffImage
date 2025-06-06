@@ -25,6 +25,9 @@ jobs:
         run: |
           git clone https://github.com/UG4/ughub.git
 
+      - name: Install libtiff
+        run:  sudo apt-get install libtiff-dev libtiff6
+
       - name: Install UG4 packages
         run: |
           
