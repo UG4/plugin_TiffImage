@@ -13,9 +13,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        # os: [macos-13] # 12 oldest
-        #os: [macos-latest, ubuntu-latest]
-        #os: [ubuntu-latest, windows-latest, macos-latest, macos-13]
 
     steps:
 
@@ -52,26 +49,12 @@ jobs:
         uses: pypa/cibuildwheel@v2.18.0
         env:
           CIBW_BUILD_VERBOSITY:  1
-          # CIBW_REPAIR_WHEEL_COMMAND: ''
           CIBW_BUILD: cp312-*
-          # CIBW_BUILD: cp310-* cp312-*
-          # Skip builds for 32-bit builds and some others...
           CIBW_SKIP: "*-win32 *-musllinux_* *linux_i686 *linux_s390x *linux_aarch64 *linux_s390x" 
-
-          
-          # Environment variables.
-          # CIBW_ENVIRONMENT: CFLAGS='-fPIC -fvisibility=hidden' CXXFLAGS='-fPIC -fvisibility=hidden'
-          # Set flags on linux 
-          # CIBW_ENVIRONMENT_LINUX: 
-          # CIBW_ENVIRONMENT_WINDOWS:
-
-          # Only on Linux, we must forward environment variables explitly. 
-          # CIBW_ENVIRONMENT_PASS_LINUX: CFLAGS CXXFLAGS
           
         with:
           package-dir: .
           output-dir: wheelhouse
-          # config-file: "pyproject.toml"
           config-file: "{package}/pyproject.toml"
 
       - uses: actions/upload-artifact@v4
@@ -98,7 +81,7 @@ jobs:
       - name: Download all wheels
         uses: actions/download-artifact@v4
         with:
-          pattern: ug4py-basic-wheels-*
+          pattern: ug4py-plugins-ijkdata-*
           merge-multiple: true
           path: dist/
           
