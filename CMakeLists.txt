@@ -37,12 +37,12 @@
 
 # Name of your plugin and sources.
 set(pluginName	IJKRasterData)
-set(SOURCES		ijk_plugin.cpp)
+set(SOURCES		src/ijk_plugin.cpp)
 
 # Tiff-plugin.
 set(SOURCES ${SOURCES}
-	neura2/c3dimage.cpp
-	neura2/c3dimage_tiff.cpp)
+	src/neura2/c3dimage.cpp
+	src/neura2/c3dimage_tiff.cpp)
 
 	
 ################################################################################
@@ -55,17 +55,33 @@ project(UG_PLUGIN_${pluginName})
 # Include the definitions and dependencies for ug-plugins.
 include(${UG_ROOT_CMAKE_PATH}/ug_plugin_includes.cmake)
 
-# include libTIFF module 
-find_package(TIFF REQUIRED)
+# Building own libtiff..
+set(tiff-tools  OFF CACHE BOOL "build TIFF tools" FORCE)
+set(tiff-tests  OFF CACHE BOOL "build TIFF tests" FORCE)
+set(tiff-contrib  OFF CACHE BOOL "build TIFF contrib" FORCE)
+set(tiff-docs  OFF CACHE BOOL "build TIFF documentation" FORCE)
+add_subdirectory(libtiff)
+#configure_file(libtiff/libtiff/tiffconf.h.cmake.in ${CMAKE_BINARY_DIR}/libtiff/tiffconf.h @ONLY)
+#configure_file(libtiff/libtiff/tiffvers.h.cmake.in ${CMAKE_BINARY_DIR}/libtiff/tiffvers.h @ONLY)
+message(STATUS "Subproject binary dir: ${CMAKE_CURRENT_BINARY_DIR}")
 
-if(TIFF_FOUND)
-	include_directories(${TIFF_INCLUDE_DIR})
-	MESSAGE (STATUS "TIFF-lib: ${TIFF_LIBRARIES}")
-	MESSAGE (STATUS "TIFF-inc: ${TIFF_INCLUDE_DIR}")
-	MESSAGE (STATUS "TIFF-pybind11: ${USE_PYBIND11}")
-else(TIFF_FOUND)
-	message(FATAL, "LibTiff not found!")
-endif(TIFF_FOUND)
+# ${CMAKE_BINARY_DIR}/path/to/generated/myfile.h tiffconf.h @ONLY)
+set(TIFF_LIBRARY "tiff")
+set(TIFF_INCLUDE_DIR "libtiff/libtiff")
+
+# include libTIFF module 
+# find_package(TIFF REQUIRED)
+
+#if(TIFF_FOUND)
+#	include_directories(${TIFF_INCLUDE_DIR})
+#	MESSAGE (STATUS "TIFF-lib: ${TIFF_LIBRARIES}")
+#	MESSAGE (STATUS "TIFF-inc: ${TIFF_INCLUDE_DIR}")
+#	MESSAGE (STATUS "TIFF-pybind11: ${USE_PYBIND11}")
+#else(TIFF_FOUND)
+#	message(FATAL, "LibTiff not found!")
+#endif(TIFF_FOUND)
+
+
 
 ################################################################################
 # Classic binding (static or dynamic plugin).
@@ -93,9 +109,10 @@ if(USE_PYBIND11)
 	# Create (static) library
 	add_library(IJKDataPlugin STATIC ${SOURCES})
 	target_include_directories (IJKDataPlugin PUBLIC ${TIFF_INCLUDE_DIR} )
+	target_include_directories (IJKDataPlugin PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/libtiff/libtiff )
 
 	# Python binding.
-	SET(myPluginSources ijk_plugin_pybind.cpp)
+	SET(myPluginSources src/ijk_plugin_pybind.cpp)
 	
 	# First argument must match module name in PYBIND11_MODULE call
 	python_add_library(pyijkdata MODULE ${myPluginSources} ${SOURCES} WITH_SOABI)

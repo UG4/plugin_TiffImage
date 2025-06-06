@@ -12,9 +12,9 @@
 
 #include <iostream>
 
-#include "../../TiffImage/neura2/cimage.h"
-#include "../../TiffImage/neura2/constants.h"
-#include "../../TiffImage/neura2/csubimage.h"
+#include "cimage.h"
+#include "constants.h"
+#include "csubimage.h"
 
 namespace neura2 {
 class C3DImage {
