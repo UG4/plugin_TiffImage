@@ -36,7 +36,7 @@ jobs:
           python3 ../ughub/ughub.py git submodule update
           
       - name: Switch to Pybind feature branch(es), if any.
-        run: python3 ughub/ughub.py git checkout feature-pybind11
+        run: python3 ../ughub/ughub.py git checkout feature-pybind11
         continue-on-error: true
           
       #- name: Checkout ugcore
