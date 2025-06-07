@@ -87,22 +87,26 @@ set(TIFF_INCLUDE_DIR "libtiff/libtiff")
 # Classic binding (static or dynamic plugin).
 ################################################################################
 if(NOT USE_PYBIND11)
-if(buildEmbeddedPlugins)
-	# add the sources to ug4's sources
-	EXPORTSOURCES(${CMAKE_CURRENT_SOURCE_DIR} ${SOURCES})
-else(buildEmbeddedPlugins)
-	# create a shared library from the sources and link it against ug4.
-	add_library(${pluginName} SHARED ${SOURCES})
-	target_link_libraries (${pluginName} ug4 ${TIFF_LIBRARY})
-endif(buildEmbeddedPlugins)
+	MESSAGE (STATUS "USE_PYBIND11 = OFF")
+	if(buildEmbeddedPlugins)
+ 		MESSAGE (STATUS "buildEmbeddedPlugins = ON")
+		# add the sources to ug4's sources
+		EXPORTSOURCES(${CMAKE_CURRENT_SOURCE_DIR} ${SOURCES})
+	else(buildEmbeddedPlugins)
+ 		MESSAGE (STATUS "buildEmbeddedPlugins = OFF")
+		# create a shared library from the sources and link it against ug4.
+		add_library(${pluginName} SHARED ${SOURCES})
+		target_link_libraries (${pluginName} ug4 ${TIFF_LIBRARY})
+	endif(buildEmbeddedPlugins)
 endif(NOT USE_PYBIND11)
 
 ################################################################################
 # Python binding (static plugin, dynamic python interface).
 ################################################################################
 if(USE_PYBIND11)
+	MESSAGE (STATUS "USE_PYBIND11 = ON")
 	
-	# Static plugin.
+ 	# Static plugin.
 	include_directories(${TIFF_INCLUDE_DIR})
 	MESSAGE (STATUS "TIFF-inc: ${TIFF_INCLUDE_DIR}")
 	
