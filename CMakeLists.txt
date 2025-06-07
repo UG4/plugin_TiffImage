@@ -60,6 +60,8 @@ include(${UG_ROOT_CMAKE_PATH}/ug_plugin_includes.cmake) # This line changed USE_
 # MESSAGE (STATUS "PyBind2: ${USE_PYBIND11}")
 
 
+
+
 # Building own libtiff..
 set(tiff-tools  OFF CACHE BOOL "build TIFF tools" FORCE)
 set(tiff-tests  OFF CACHE BOOL "build TIFF tests" FORCE)
@@ -81,6 +83,39 @@ set(TIFF_INCLUDE_DIR "libtiff/libtiff")
 #else(TIFF_FOUND)
 #	message(FATAL, "LibTiff not found!")
 #endif(TIFF_FOUND)
+
+# Some auxiliary function
+FUNCTION(get_libug4_from_pip RETURN_VAR)
+	SET(UG4_STATIC_LIB_BASENAME ug4_s)
+	if(WIN32)
+    	set(UG4_STATIC_LIB_NAME "${LIB_BASENAME}.lib")
+	else()
+    	set(UG4_STATIC_LIB_NAME "lib${LIB_BASENAME}.a")
+	endif()
+	
+	# Extract possible location of pip-package
+	execute_process(
+    		COMMAND pip show ug4py-base
+    		OUTPUT_VARIABLE PIP_SHOW_OUTPUT
+    		OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+
+	# Extract the "Location" line & remove the ' prefix to get the actual path
+	string(REGEX MATCH "Location: .+" LOCATION_LINE "${PIP_SHOW_OUTPUT}")
+	string(REPLACE "Location: " "" UG4PY_BASE_PACKAGE_PATH "${LOCATION_LINE}")
+	string(REGEX MATCH "^[^\n\r]*" UG4PY_BASE_PACKAGE_PATH "${UG4PY_BASE_PACKAGE_PATH}") # remove lines.
+	message(STATUS "Package path: '${UG4PY_BASE_PACKAGE_PATH}'")
+	
+	# Find library.
+	find_library(PYUG4_STATIC_LIBRARY
+    			NAMES ${UG4_STATIC_LIB_BASENAME} lib${UG4_STATIC_LIB_BASENAME}
+    			PATHS ${UG4PY_BASE_PACKAGE_PATH}/lib ${UG4PY_BASE_PACKAGE_PATH}/lib64)
+	
+	message(STATUS "Library ${UG4_STATIC_LIB_BASENAME} found: ${PYUG4_STATIC_LIBRARY}")
+	
+	set(${RETURN_VAR} "${PYUG4_STATIC_LIBRARY}" PARENT_SCOPE) 
+	ENDFUNCTION()
+	
 
 
 ################################################################################
@@ -110,36 +145,36 @@ if(USE_PYBIND11)
 	include_directories(${TIFF_INCLUDE_DIR})
 	MESSAGE (STATUS "TIFF-inc: ${TIFF_INCLUDE_DIR}")
 	
-	# Create (static) library.
+	###############################################
+	# 0) Let's try to locate ug_4 static library....
+	###############################################
+	# Determine static library extension and naming
+	
+	
+	get_libug4_from_pip(PYUG4_STATIC_LIBRARY)
+	message(STATUS "Library found: ${PYUG4_STATIC_LIBRARY}")
+
+	#########################################
+ 	# 1) Create (static) library for plugin.
+	#########################################
 	add_library(IJKDataPlugin STATIC ${SOURCES})
 	target_include_directories (IJKDataPlugin PUBLIC ${TIFF_INCLUDE_DIR} )
 	target_include_directories (IJKDataPlugin PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/libtiff/libtiff )
 
-	# Python binding.
+
+	######################################
+ 	# 2) Create (dynamic) python library module.
+ 	# First argumentin 'python_add_library' must match module name in PYBIND11_MODULE call!
+	######################################
 	SET(myPluginSources src/ijk_plugin_pybind.cpp)
-	
-
-	# Extract location of package
-	execute_process(
-    		COMMAND pip show requests
-    		OUTPUT_VARIABLE PIP_SHOW_OUTPUT
-    		OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-
-	# Extract the Location line
-	string(REGEX MATCH "Location: .+" LOCATION_LINE "${PIP_SHOW_OUTPUT}")
-
-	# Remove the 'Location: ' prefix to get the actual path
-	string(REPLACE "Location: " "" PACKAGE_PATH "${LOCATION_LINE}")
-
-	# Print the result
-	message(STATUS "Package path: ${PACKAGE_PATH}")
-
-
- 	# Create a python library module.
-	# First argument must match module name in PYBIND11_MODULE call
 	python_add_library(pyijkdata MODULE ${myPluginSources} ${SOURCES} WITH_SOABI)
-	target_link_libraries (pyijkdata PRIVATE IJKDataPlugin ug4_s ${TIFF_LIBRARY})
+	target_link_directories (pyijkdata PRIVATE ${UG4PY_BASE_PACKAGE_PATH})
+	
+	if (${PYUG4_STATIC_LIBRARY})
+		target_link_libraries (pyijkdata PRIVATE IJKDataPlugin ${PYUG4_STATIC_LIBRARY} ${TIFF_LIBRARY})
+	else()
+		target_link_libraries (pyijkdata PRIVATE IJKDataPlugin ug4_s ${TIFF_LIBRARY})
+	endif()
 	target_include_directories (pyijkdata PUBLIC ${TIFF_INCLUDE_DIR} )
 	set_target_properties(pyijkdata PROPERTIES INSTALL_RPATH "$ORIGIN/..:$ORIGIN/../../../lib")
 	install(TARGETS pyijkdata LIBRARY DESTINATION ug4py COMPONENT pymodules)
