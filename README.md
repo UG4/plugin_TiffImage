@@ -1,4 +1,4 @@
-# TiffImageData #
+# TiffImageData (aka IJKData)
 
 **TiffImageData** is a **UG4-Plugin** allowing to handle tiff image stacks
 
