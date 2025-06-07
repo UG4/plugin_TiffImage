@@ -60,7 +60,6 @@ jobs:
           
         with:
           package-dir: .
-          source-dir: ug4-git/plugins/TiffImage 
           output-dir: wheelhouse
           config-file: "{package}/pyproject.toml"
 
