@@ -53,7 +53,10 @@ cmake_minimum_required(VERSION 2.8.12...3.20)
 project(UG_PLUGIN_${pluginName})
 
 # Include the definitions and dependencies for ug-plugins.
+MESSAGE (STATUS "PyBind2: ${USE_PYBIND11}")
 include(${UG_ROOT_CMAKE_PATH}/ug_plugin_includes.cmake)
+MESSAGE (STATUS "PyBind2: ${USE_PYBIND11}")
+
 
 # Building own libtiff..
 set(tiff-tools  OFF CACHE BOOL "build TIFF tools" FORCE)
@@ -61,11 +64,7 @@ set(tiff-tests  OFF CACHE BOOL "build TIFF tests" FORCE)
 set(tiff-contrib  OFF CACHE BOOL "build TIFF contrib" FORCE)
 set(tiff-docs  OFF CACHE BOOL "build TIFF documentation" FORCE)
 add_subdirectory(libtiff)
-#configure_file(libtiff/libtiff/tiffconf.h.cmake.in ${CMAKE_BINARY_DIR}/libtiff/tiffconf.h @ONLY)
-#configure_file(libtiff/libtiff/tiffvers.h.cmake.in ${CMAKE_BINARY_DIR}/libtiff/tiffvers.h @ONLY)
-message(STATUS "Subproject binary dir: ${CMAKE_CURRENT_BINARY_DIR}")
 
-# ${CMAKE_BINARY_DIR}/path/to/generated/myfile.h tiffconf.h @ONLY)
 set(TIFF_LIBRARY "tiff")
 set(TIFF_INCLUDE_DIR "libtiff/libtiff")
 
