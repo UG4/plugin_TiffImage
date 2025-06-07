@@ -73,7 +73,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ug4py-basic-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          name: ug4py-plugins-ijkdata-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
   ########################        
