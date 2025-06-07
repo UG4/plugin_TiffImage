@@ -11,8 +11,8 @@ requires = [
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "ug4py-ijkdata"
-version = "0.1.5"
+name = "ug4py-plugins-ijkdata"
+version = "0.0.1"
 description = "This is UG4-plugin for ijkdata."
 readme = {file = "README.md", content-type = "text/markdown"}
 
