@@ -21,14 +21,14 @@ jobs:
         with:
           submodules: true
 
-      #- name: Move sources.
-      #  run: |
-          #mkdir ug4-git
-          #mkdir ug4-git/plugins
-          #mkdir ug4-git/plugins/TiffImage
-          #mv CMakeLists.txt ug4-git/plugins/TiffImage
-          #mv libtiff ug4-git/plugins/TiffImage
-          #mv src ug4-git/plugins/TiffImage
+      - name: Move sources to 'ug4-git/plugins/TiffImage'.
+        run: |
+          mkdir ug4-git
+          mkdir ug4-git/plugins
+          mkdir ug4-git/plugins/TiffImage
+          mv CMakeLists.txt ug4-git/plugins/TiffImage
+          mv libtiff ug4-git/plugins/TiffImage
+          mv src ug4-git/plugins/TiffImage
 
       - name: Checkout ughub
         run: |
@@ -37,9 +37,9 @@ jobs:
       #- name: Install libtiff
       #  run:  sudo apt-get install libtiff-dev libtiff6
 
-      - name: Install UG4 packages
+      - name: Install UG4 packages into 'ug4-git/*' 
         run: |
-          mkdir ug4-git
+          # mkdir ug4-git
           cd ug4-git
           python3 ../ughub/ughub.py init
           python3 ../ughub/ughub.py install ugcore PybindForUG4
@@ -60,6 +60,7 @@ jobs:
           
         with:
           package-dir: .
+          source-dir: ug4-git/plugins/TiffImage 
           output-dir: wheelhouse
           config-file: "{package}/pyproject.toml"
 
