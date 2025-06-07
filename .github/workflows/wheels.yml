@@ -51,6 +51,7 @@ jobs:
         run: |
           pwd
           ls
+          cd ug4-git
           python3 ../ughub/ughub.py git checkout feature-pybind11
         continue-on-error: true
 
