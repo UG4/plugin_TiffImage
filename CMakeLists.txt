@@ -63,10 +63,10 @@ include(${UG_ROOT_CMAKE_PATH}/ug_plugin_includes.cmake) # This line changed USE_
 
 
 # Building own libtiff..
-set(tiff-tools  OFF CACHE BOOL "build TIFF tools" FORCE)
-set(tiff-tests  OFF CACHE BOOL "build TIFF tests" FORCE)
-set(tiff-contrib  OFF CACHE BOOL "build TIFF contrib" FORCE)
-set(tiff-docs  OFF CACHE BOOL "build TIFF documentation" FORCE)
+set(tiff-tools OFF CACHE BOOL "build TIFF tools" FORCE)
+set(tiff-tests OFF CACHE BOOL "build TIFF tests" FORCE)
+set(tiff-contrib OFF CACHE BOOL "build TIFF contrib" FORCE)
+set(tiff-docs OFF CACHE BOOL "build TIFF documentation" FORCE)
 add_subdirectory(libtiff)
 
 set(TIFF_LIBRARY "tiff")
@@ -84,7 +84,7 @@ set(TIFF_INCLUDE_DIR "libtiff/libtiff")
 #	message(FATAL, "LibTiff not found!")
 #endif(TIFF_FOUND)
 
-# Some auxiliary function
+# Auxiliary function for finding ug4_s 
 FUNCTION(get_libug4_from_pip RETURN_VAR)
 	SET(UG4_STATIC_LIB_BASENAME ug4_s)
 	if(WIN32)
@@ -148,33 +148,30 @@ if(USE_PYBIND11)
 	###############################################
 	# 0) Let's try to locate ug_4 static library....
 	###############################################
-	# Determine static library extension and naming
 	
+	set(UG4_STATIC_LIBRARY ug4_s)
+	if (BUILD_WITH_PIP)
+		get_libug4_from_pip(PYUG4_STATIC_LIBRARY)
+		message(STATUS "Library found: ${PYUG4_STATIC_LIBRARY}")
+		set(UG4_STATIC_LIBRARY ${PYUG4_STATIC_LIBRARY})
+	endif()
+	message(STATUS "Using libug4_s: ${UG4_STATIC_LIBRARY}")
 	
-	get_libug4_from_pip(PYUG4_STATIC_LIBRARY)
-	message(STATUS "Library found: ${PYUG4_STATIC_LIBRARY}")
-
-	#########################################
+	###############################################
  	# 1) Create (static) library for plugin.
-	#########################################
+	###############################################
 	add_library(IJKDataPlugin STATIC ${SOURCES})
 	target_include_directories (IJKDataPlugin PUBLIC ${TIFF_INCLUDE_DIR} )
 	target_include_directories (IJKDataPlugin PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/libtiff/libtiff )
 
-
-	######################################
+	###############################################
  	# 2) Create (dynamic) python library module.
  	# First argumentin 'python_add_library' must match module name in PYBIND11_MODULE call!
-	######################################
+	###############################################
 	SET(myPluginSources src/ijk_plugin_pybind.cpp)
 	python_add_library(pyijkdata MODULE ${myPluginSources} ${SOURCES} WITH_SOABI)
 	target_link_directories (pyijkdata PRIVATE ${UG4PY_BASE_PACKAGE_PATH})
-	
-	if (${PYUG4_STATIC_LIBRARY})
-		target_link_libraries (pyijkdata PRIVATE IJKDataPlugin ${PYUG4_STATIC_LIBRARY} ${TIFF_LIBRARY})
-	else()
-		target_link_libraries (pyijkdata PRIVATE IJKDataPlugin ug4_s ${TIFF_LIBRARY})
-	endif()
+	target_link_libraries (pyijkdata PRIVATE IJKDataPlugin ${UG4_STATIC_LIBRARY} ${TIFF_LIBRARY})
 	target_include_directories (pyijkdata PUBLIC ${TIFF_INCLUDE_DIR} )
 	set_target_properties(pyijkdata PROPERTIES INSTALL_RPATH "$ORIGIN/..:$ORIGIN/../../../lib")
 	install(TARGETS pyijkdata LIBRARY DESTINATION ug4py COMPONENT pymodules)
