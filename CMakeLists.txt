@@ -58,7 +58,7 @@ if (USE_PYBIND11)
 	# Translate CMake flag to option.
 	# (required, if compilation is without UG4) 
 	option(USE_PYBIND11 "Use PYBIND11" ON)
-end (USE_PYBIND11)
+endif(USE_PYBIND11)
 include(${UG_ROOT_CMAKE_PATH}/ug_plugin_includes.cmake)
 MESSAGE (STATUS "PyBind2: ${USE_PYBIND11}")
 
