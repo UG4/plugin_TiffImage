@@ -53,7 +53,12 @@ cmake_minimum_required(VERSION 2.8.12...3.20)
 project(UG_PLUGIN_${pluginName})
 
 # Include the definitions and dependencies for ug-plugins.
-MESSAGE (STATUS "PyBind2: ${USE_PYBIND11}")
+MESSAGE (STATUS "PyBind1: ${USE_PYBIND11}")
+if (USE_PYBIND11)
+	# Translate CMake flag to option.
+	# (required, if compilation is without UG4) 
+	option(USE_PYBIND11 "Use PYBIND11" ON)
+end (USE_PYBIND11)
 include(${UG_ROOT_CMAKE_PATH}/ug_plugin_includes.cmake)
 MESSAGE (STATUS "PyBind2: ${USE_PYBIND11}")
 
