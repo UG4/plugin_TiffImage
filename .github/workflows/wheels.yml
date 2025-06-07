@@ -60,7 +60,7 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: > 
             ls && 
             export UG4_ROOT=$PWD/ug4-git
-          CIBW_ENVIRONMENT: "CMAKE_ARGS=-DUG_ROOT_CMAKE_PATH=${{ env.UG4_ROOT }}/ugcore/cmake"
+          CIBW_ENVIRONMENT: "CMAKE_ARGS=-DUG_ROOT_CMAKE_PATH=${{ env.PWD }}/ugcore/cmake"
           
         with:
           package-dir: .
