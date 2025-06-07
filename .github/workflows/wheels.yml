@@ -58,7 +58,7 @@ jobs:
           CIBW_BUILD: cp312-*
           CIBW_SKIP: "*-win32 *-musllinux_* *linux_i686 *linux_s390x *linux_aarch64 *linux_s390x" 
           CIBW_BEFORE_ALL_LINUX: > 
-            ls && 
+            pwd && ls && 
             export UG4_ROOT=$PWD/ug4-git
           CIBW_ENVIRONMENT: "CMAKE_ARGS=-DUG_ROOT_CMAKE_PATH=${{ env.PWD }}/ugcore/cmake"
           
