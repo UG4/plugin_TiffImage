@@ -57,7 +57,10 @@ jobs:
           CIBW_BUILD_VERBOSITY:  1
           CIBW_BUILD: cp312-*
           CIBW_SKIP: "*-win32 *-musllinux_* *linux_i686 *linux_s390x *linux_aarch64 *linux_s390x" 
-          CIBW_BEFORE_ALL_LINUX: ls
+          CIBW_BEFORE_ALL_LINUX: > 
+            ls && 
+            export UG4_ROOT=$PWD/ug4-git &&
+            export UG_ROOT_CMAKE_PATH=$UG4_ROOT/ugcore/cmake
           
         with:
           package-dir: .
