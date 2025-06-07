@@ -83,7 +83,6 @@ set(TIFF_INCLUDE_DIR "libtiff/libtiff")
 #endif(TIFF_FOUND)
 
 
-
 ################################################################################
 # Classic binding (static or dynamic plugin).
 ################################################################################
@@ -111,7 +110,7 @@ if(USE_PYBIND11)
 	include_directories(${TIFF_INCLUDE_DIR})
 	MESSAGE (STATUS "TIFF-inc: ${TIFF_INCLUDE_DIR}")
 	
-	# Create (static) library
+	# Create (static) library.
 	add_library(IJKDataPlugin STATIC ${SOURCES})
 	target_include_directories (IJKDataPlugin PUBLIC ${TIFF_INCLUDE_DIR} )
 	target_include_directories (IJKDataPlugin PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/libtiff/libtiff )
@@ -119,12 +118,29 @@ if(USE_PYBIND11)
 	# Python binding.
 	SET(myPluginSources src/ijk_plugin_pybind.cpp)
 	
+
+	# Extract location of package
+	execute_process(
+    		COMMAND pip show requests
+    		OUTPUT_VARIABLE PIP_SHOW_OUTPUT
+    		OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+
+	# Extract the Location line
+	string(REGEX MATCH "Location: .+" LOCATION_LINE "${PIP_SHOW_OUTPUT}")
+
+	# Remove the 'Location: ' prefix to get the actual path
+	string(REPLACE "Location: " "" PACKAGE_PATH "${LOCATION_LINE}")
+
+	# Print the result
+	message(STATUS "Package path: ${PACKAGE_PATH}")
+
+
+ 	# Create a python library module.
 	# First argument must match module name in PYBIND11_MODULE call
 	python_add_library(pyijkdata MODULE ${myPluginSources} ${SOURCES} WITH_SOABI)
-	
 	target_link_libraries (pyijkdata PRIVATE IJKDataPlugin ug4_s ${TIFF_LIBRARY})
 	target_include_directories (pyijkdata PUBLIC ${TIFF_INCLUDE_DIR} )
-	
 	set_target_properties(pyijkdata PROPERTIES INSTALL_RPATH "$ORIGIN/..:$ORIGIN/../../../lib")
 	install(TARGETS pyijkdata LIBRARY DESTINATION ug4py COMPONENT pymodules)
 
