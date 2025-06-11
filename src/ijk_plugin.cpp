@@ -206,7 +206,7 @@ static void Dimension(TRegistry& reg, string grp)
 
 		reg.template add_class_<T,TBase>(name, grp)
 			.template add_constructor<void (*)()>("MultilevelRasterData")
-			.add_method("set_filter", &T::set_filter)
+			// .add_method("set_filter", &T::set_filter)
 			.set_construct_as_smart_pointer(true);
 
 	}
@@ -233,6 +233,39 @@ static void Algebra(Registry& reg, string grp)
 }
 
 }; // end Functionality
+
+
+
+
+#ifdef UG_USE_PYBIND11
+struct PyFunctionality
+{
+	template <int dim, typename TRegistry=ug::bridge::Registry>
+	static void Dimension(TRegistry& reg, string grp)
+	{
+	//	useful defines
+		string suffix = GetDimensionSuffix<dim>();
+		string tag = GetDimensionTag<dim>();
+
+
+		{
+				// Multilevel raster (e.g. COG)
+				string name = string("PyElementUserData").append(suffix);
+				typedef PyElementUserData<number, dim> T;
+				typedef typename T::base_type TBase;
+
+				reg.template add_class_<T,TBase>(name, grp)
+					.template add_constructor<void (*)(typename T::TFunction)>("PyElementUserData")
+					// .add_method("set_filter", &T::set_filter)
+					.set_construct_as_smart_pointer(true);
+
+			}
+
+
+	}
+};
+#endif
+
 
 // end group sample_plugin
 /// \}
@@ -266,6 +299,10 @@ namespace IJKRasterDataPlugin
 	void InitUGPlugin(ug::pybind::Registry* reg, string grp)
 	{
 		RegisterBridge_IJKRasterData<ug::pybind::Registry> (reg,grp);
+		try{
+
+			RegisterDimensionDependent<typename ug::IJKRasterDataPlugin::PyFunctionality>(*reg,grp);
+		}	UG_REGISTRY_CATCH_THROW(grp);
 	}
 }
 #endif

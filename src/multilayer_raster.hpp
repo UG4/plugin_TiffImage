@@ -9,163 +9,155 @@
 #define MULTILAYER_RASTER_HPP_
 
 
-#include "common/node_tree/node_tree.h" // for BoundingBox
+#ifdef UG_USE_PYBIND11
+#include <Python.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/functional.h>
 
-#include "common/node_tree/octree.h" // for BoundingBox
+#include "bindings/pybind/python_user_data.h"
+
+namespace py = pybind11;
+
+#endif
+
+#include "element_user_data.hpp"
 
 namespace ug {
 //! This object implements a multi-level raster data.
-/*!
-	*/
-template < typename TData, int dim>
-class MultilevelRasterData
-	: public StdUserData<MultilevelRasterData<TData, dim>, TData, dim>
 
+//! This is the real implementation.
+template <int dim>
+struct SimpleStrategy : public ElemenEvalStrategy<SimpleStrategy<dim>, dim>
 {
-	public:
-		typedef CplUserData<TData, dim> base_type;
+public:
+	SimpleStrategy(){}
 
-		MultilevelRasterData() : hfilter(0.0) {};
+	void prepare_element_impl(const GridObject* elem, const MathVector<dim> vCornerCoords[])
+	{
+		BoundingBox<dim> box(elem,vCornerCoords);
+		bb[0] = box.ll;
+		bb[1] = box.ur;
+	}
 
-		void set_filter(double lambda) {hfilter = lambda;}
+	void eval_on_element_impl(double &value,  const MathVector<dim> &vGlobIP, number time, int si) const
+	{
+		// dummy return.
+		value = vGlobIP[0]*vGlobIP[dim-1];
+	}
 
-		// Implement StdUserData.
-		void operator() (TData& value,
-								 const MathVector<dim>& globIP,
-								 number time, int si) const override
-		{
-			// TODO: Add code!
-			std::cerr << __FILE__ << ":" <<__LINE__ << std::endl;
-			value = globIP[0]*globIP[dim-1]*hfilter;
-			UG_ASSERT(0, "ERROR: Implement!");
-		};
-
-		// Implement StdUserData.
-		void operator()(TData vValue[],
-								const MathVector<dim> vGlobIP[],
-								number time, int si, const size_t nip) const override
-		{
-			// TODO: Add code!
-			std::cerr << __FILE__ << ":" <<__LINE__ << std::endl;
-			UG_ASSERT(0, "ERROR: Implement!");
-		};
+protected:
+	MathVector<dim> bb[2];
+};
 
 
-		///	Implement ICplUserData.
-		void compute(LocalVector* u, GridObject* elem,
-		        const MathVector<dim> vCornerCoords[], bool bDeriv = false) override
-		{
+template < typename TData, int dim>
+class MultilevelRasterData : public ElementUserData<TData,SimpleStrategy<dim>, dim>
+{
+public:
+	MultilevelRasterData() :
+		strategy(), ElementUserData<TData,SimpleStrategy<dim>, dim>(strategy)
+	{}
 
-			std::cerr << __FILE__ << ":" <<__LINE__ << std::endl;
-			eval_elem(elem, vCornerCoords);
-
-			const number t = this->time();
-			const int si = this->subset();
-
-			for(size_t s = 0; s < this->num_series(); ++s)
-				for(size_t ip = 0; ip < this->num_ip(s); ++ip)
-				{
-					// Evaluation point.
-					auto x = this->ip(s, ip);
-
-					// TODO: Add code!
-					this->value(s,ip) = x[0]*x[dim-1];
-				}
-
-		}
-
-		// Compute values for an IP series
-		void compute(LocalVectorTimeSeries* u,
-		                     GridObject* elem,
-		                     const MathVector<dim> vCornerCoords[],
-		                     bool bDeriv = false) override
-		{
-			std::cerr << __FILE__ << ":" <<__LINE__ << std::endl;
-
-			//const int si = this->subset();
-			eval_elem(elem, vCornerCoords);
-
-
-		/*
-			for(size_t s = 0; s < this->num_series(); ++s)
-				for(size_t ip = 0; ip < this->num_ip(s); ++ip)
-					this->getImpl().evaluate(this->value(s,ip), this->ip(s, ip), this->time(s), si);
-		*/
-		}
-
-
-		//! Implement for StdUserData.
-		template <int refDim>
-		inline void evaluate(TData vValue[],
-		                     const MathVector<dim> vGlobIP[],
-		                     number time, int si,
-		                     GridObject* elem,
-		                     const MathVector<dim> vCornerCoords[],
-		                     const MathVector<refDim> vLocIP[],
-		                     const size_t nip,
-		                     LocalVector* u,
-		                     const MathMatrix<refDim, dim>* vJT = NULL) const
-		{
-
-			std::cerr << __FILE__ << ": " <<__LINE__ << std::endl;
-			eval_elem(elem, vCornerCoords);
-
-			for (int i=0; i<nip; ++i)
-			{
-				// TODO: Implement.
-				vValue[i] = vCornerCoords[0]*vCornerCoords[dim-1];
-			}
-
-
-		}
-
-		void eval_elem( GridObject* elem,
-                const MathVector<dim> vCornerCoords[]) const
-		{
-			const ReferenceObjectID roid = elem->reference_object_id();
-
-			uint nvertices = 0;
-			MathVector<dim> ll, ur;
-
-
-			if (roid == ROID_TRIANGLE)
-			{
-				node_tree::CalculateBoundingBox(ll, ur, vCornerCoords, 3);
-				nvertices = 3;
-			}
-			else if (roid == ROID_QUADRILATERAL){
-				node_tree::CalculateBoundingBox(ll, ur, vCornerCoords, 4);
-				nvertices = 4;
-			}
-
-			std::cerr << "This is elem " << elem << "(" << roid << ") " << "with corners:" << std::endl;
-			for (int i=0; i< nvertices;  ++i)
-			{
-				std::cerr <<vCornerCoords[i] << std::endl;
-			}
-			std::cerr << "and bounding-box given by "<< ll <<" and " << ur <<"." << std::endl;
-
-		}
-
-		bool requires_grid_fct() const override {return false;}
-		bool constant() const override {return false;}
-		bool continuous() const override {return false;}
-
-	/*protected:
-		///	access to implementation
-			TImpl& getImpl() {return static_cast<TImpl&>(*this);}
-
-		///	const access to implementation
-			const TImpl& getImpl() const {return static_cast<const TImpl&>(*this);}*/
-
-	protected:
-		double hfilter;
+protected:
+	SimpleStrategy<dim> strategy;
 
 };
 
 
 
-}
+
+#ifdef UG_USE_PYBIND11
+
+
+// Need to evaluate a python function
+
+template<int dim>
+struct PyElemDataTraits
+{
+	typedef typename std::function<double(double,int)> TCppFunction;
+	template <typename TFunction>
+	static py::object call(TFunction f, MathVector<dim>[3], double t, int si)
+	{return f(t,si);}
+};
+
+template<>
+struct PyElemDataTraits<1>
+{
+	typedef typename std::function<double(double, double, int)> TCppFunction;
+
+	template <typename TFunction>
+	static py::object  call(TFunction f, const MathVector<1> x, const MathVector<1> bb0, const MathVector<1> bb1,  double t, int si)
+	{return f(x[0],bb0[0],bb1[0],t,si);}
+};
+
+template<>
+struct PyElemDataTraits<2>
+{
+	typedef typename std::function<double(double, double, double, int)> TCppFunction;
+	template <typename TFunction>
+	static py::object call(TFunction f, const MathVector<2> x, const MathVector<2> bb0, const MathVector<2> bb1, double t, int si)
+	{return f(x[0],x[1], bb0[0],bb0[1],bb1[0],bb1[1],t,si);}
+};
+
+template<>
+struct PyElemDataTraits<3>
+{
+	typedef typename std::function<double(double, double, double, double, int)> TCppFunction;
+
+	template <typename TFunction>
+	static py::object call(TFunction f, const MathVector<3> x, const MathVector<3> bb0, const MathVector<3> bb1, double t, int si)
+	{ return f(x[0],x[1],x[2], bb0[0],bb0[1],bb0[2], bb1[0],bb1[1],bb1[2],t,si); }
+};
+
+//! This realizes a Python callback.
+template <int dim>
+struct PyCallbackStrategy : public ElemenEvalStrategy<PyCallbackStrategy<dim>, dim>
+{
+
+	typedef py::object TFunction;
+	PyCallbackStrategy(TFunction f) : pyfunc(f) {}
+
+	void prepare_element_impl(const GridObject* elem, const MathVector<dim> vCornerCoords[])
+	{
+		BoundingBox<dim> box(elem,vCornerCoords);
+		bb[0] = box.ll;
+		bb[1] = box.ur;
+	}
+
+	//! Evaluate at x for a given bounding box B(x) at time t and subset si.
+	void eval_on_element_impl(double &value,  const MathVector<dim> &vGlobIP, number time, int si) const
+	{
+		typedef number TData;
+		typedef void TRet;
+		py::object result_py = PyElemDataTraits<dim>().call(pyfunc, vGlobIP, bb[0], bb[1], time, si);
+		value = PyUserDataTypeTraits<TData, TRet>::data_value(result_py);
+		// return PyUserDataTypeTraits<TData, TRet>::return_value(result_py);
+	}
+
+protected:
+	MathVector<dim> bb[2];
+
+	TFunction pyfunc; //! Callback function
+};
+
+
+template < typename TData, int dim>
+class PyElementUserData : public ElementUserData<TData,PyCallbackStrategy<dim>, dim>
+{
+public:
+	typedef py::object TFunction;
+
+	PyElementUserData(TFunction f) :
+	strategy(f), ElementUserData<TData,PyCallbackStrategy<dim>, dim>(strategy)
+	{}
+
+protected:
+	PyCallbackStrategy<dim> strategy;
+};
+
+#endif
+
+} // namespace ug
 
 
 #endif /* MULTILAYER_RASTER_HPP_ */
