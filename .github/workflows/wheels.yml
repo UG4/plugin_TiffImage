@@ -64,6 +64,10 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: > 
             pwd && ls && 
             export UG4_ROOT=$PWD/ug4-git
+          CMAKE_ARGS: >-
+            ${{ contains(matrix.os, 'ubuntu') && '-DBUILD_WITH_PIP=ON' || 
+             contains(matrix.os, 'windows') && '-DBUILD_WITH_PIP=OFF' || 
+             contains(matrix.os, 'macos') && '-DBUILD_WITH_PIP=OFF' }}
           # CIBW_ENVIRONMENT: "CMAKE_ARGS=-DUG_ROOT_CMAKE_PATH=${{ env.PWD }}/ugcore/cmake"
           
         with:
