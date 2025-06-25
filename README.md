@@ -1,8 +1,8 @@
 # TiffImageData (aka IJKData)
+[![Build wheels](https://github.com/UG4/plugin_TiffImage/actions/workflows/wheels.yml/badge.svg)](https://github.com/UG4/plugin_TiffImage/actions/workflows/wheels.yml)
+[![PyPI version](https://img.shields.io/pypi/v/ug4py-plugins-ijkdata.svg)](https://pypi.org/project/ug4py-plugins-ijkdata/)
 
 **TiffImageData** is a **UG4-Plugin** allowing to handle tiff image stacks
-
-[![Build wheels](https://github.com/UG4/py-basic-wheels/actions/workflows/wheels.yml/badge.svg)](https://github.com/UG4/ugpip/actions/workflows/wheels.yml)
 
 Copyright 2011-2016 Goethe Center for Scientific Computing, University Frankfurt
 
