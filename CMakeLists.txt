@@ -101,6 +101,10 @@ endfunction()
 
 
 # Building own libtiff..
+
+set(zlib OFF CACHE BOOL "zlib" FORCE)
+set(libdeflate OFF CACHE BOOL "libdeflate" FORCE)
+
 set(tiff-tools OFF CACHE BOOL "build TIFF tools" FORCE)
 set(tiff-tests OFF CACHE BOOL "build TIFF tests" FORCE)
 set(tiff-contrib OFF CACHE BOOL "build TIFF contrib" FORCE)
