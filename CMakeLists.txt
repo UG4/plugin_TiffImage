@@ -103,12 +103,16 @@ endfunction()
 # Building own libtiff..
 
 if(APPLE)
-	# TODO: macos-13 build for 10.9, macos-14 for 10.10. But libs are from build OS?
+	# TODO: Per default, macos-13 builds for 10.9, macos-14 for 10.10. 
+ 	# But libs are taken from build OS...
+ 	# May be avoided by setting MACOSX_DEPLOYMENT_TARGET?
 	set(zlib OFF CACHE BOOL "zlib" FORCE)
 	set(libdeflate OFF CACHE BOOL "libdeflate" FORCE)
 	set(webp OFF CACHE BOOL "libdeflate" FORCE)
 	set(jpeg OFF CACHE BOOL "libdeflate" FORCE)
 	set(old-jpeg OFF CACHE BOOL "libdeflate" FORCE)
+ 	set(zstd OFF CACHE BOOL "libdeflate" FORCE)
+  	set(lzma OFF CACHE BOOL "libdeflate" FORCE)
 endif(APPLE)
 
 
