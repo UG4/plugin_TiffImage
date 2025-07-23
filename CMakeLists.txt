@@ -84,39 +84,6 @@ set(TIFF_INCLUDE_DIR "libtiff/libtiff")
 #	message(FATAL, "LibTiff not found!")
 #endif(TIFF_FOUND)
 
-# Auxiliary function for finding ug4_s 
-FUNCTION(get_libug4_from_pip RETURN_VAR)
-	SET(UG4_STATIC_LIB_BASENAME ug4_s)
-	if(WIN32)
-    	set(UG4_STATIC_LIB_NAME "${LIB_BASENAME}.lib")
-	else()
-    	set(UG4_STATIC_LIB_NAME "lib${LIB_BASENAME}.a")
-	endif()
-	
-	# Extract possible location of pip-package
-	execute_process(
-    		COMMAND pip show ug4py-base
-    		OUTPUT_VARIABLE PIP_SHOW_OUTPUT
-    		OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-
-	# Extract the "Location" line & remove the ' prefix to get the actual path
-	string(REGEX MATCH "Location: .+" LOCATION_LINE "${PIP_SHOW_OUTPUT}")
-	string(REPLACE "Location: " "" UG4PY_BASE_PACKAGE_PATH "${LOCATION_LINE}")
-	string(REGEX MATCH "^[^\n\r]*" UG4PY_BASE_PACKAGE_PATH "${UG4PY_BASE_PACKAGE_PATH}") # remove lines.
-	message(STATUS "Package path: '${UG4PY_BASE_PACKAGE_PATH}'")
-	
-	# Find library.
-	find_library(PYUG4_STATIC_LIBRARY
-    			NAMES ${UG4_STATIC_LIB_BASENAME} lib${UG4_STATIC_LIB_BASENAME}
-    			PATHS ${UG4PY_BASE_PACKAGE_PATH}/lib ${UG4PY_BASE_PACKAGE_PATH}/lib64)
-	
-	message(STATUS "Library ${UG4_STATIC_LIB_BASENAME} found: ${PYUG4_STATIC_LIBRARY}")
-	
-	set(${RETURN_VAR} "${PYUG4_STATIC_LIBRARY}" PARENT_SCOPE) 
-	ENDFUNCTION()
-	
-
 
 ################################################################################
 # Classic binding (static or dynamic plugin).
