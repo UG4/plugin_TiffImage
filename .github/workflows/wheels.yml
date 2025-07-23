@@ -67,7 +67,7 @@ jobs:
           CMAKE_ARGS: >-
             ${{ contains(matrix.os, 'ubuntu') && '-DBUILD_WITH_PIP=ON -DUG_ROOT_CMAKE_PATH=/project/ug4-git/ugcore/cmake' || 
              contains(matrix.os, 'windows') && '-DBUILD_WITH_PIP=OFF -DUG_ROOT_CMAKE_PATH=D:/a/plugin_TiffImage/plugin_TiffImage/ug4-git/ugcore/cmake' || 
-             contains(matrix.os, 'macos') && '-DUG_ROOT_CMAKE_PATH=/Users/runner/work/plugin_SuperLU6/plugin_SuperLU6/ug4-git/ugcore/cmake -DBUILD_WITH_PIP=OFF' }}
+             contains(matrix.os, 'macos') && '-DUG_ROOT_CMAKE_PATH=/Users/runner/work/plugin_TiffImage/plugin_TiffImage/ug4-git/ugcore/cmake -DBUILD_WITH_PIP=OFF' }}
           # CIBW_ENVIRONMENT: "CMAKE_ARGS=-DUG_ROOT_CMAKE_PATH=${{ env.PWD }}/ugcore/cmake"
           
         with:
