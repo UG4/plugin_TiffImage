@@ -53,11 +53,10 @@ cmake_minimum_required(VERSION 2.8.12...3.20)
 project(UG_PLUGIN_${pluginName})
 
 # Include the definitions and dependencies for ug-plugins.
-# MESSAGE (STATUS "PyBind1: ${USE_PYBIND11}")
-# SET(MYPYBIND11 ${USE_PYBIND11})
+if(NOT DEFINED UG_ROOT_CMAKE_PATH OR UG_ROOT_CMAKE_PATH STREQUAL "")
+    message(FATAL_ERROR "UG_ROOT_CMAKE_PATH is not set or is empty. Must provide a value.")
+endif()
 include(${UG_ROOT_CMAKE_PATH}/ug_plugin_includes.cmake) # This line changed USE_PYBIND11, but why
-# SET(USE_PYBIND11 ${MYPYBIND11})
-# MESSAGE (STATUS "PyBind2: ${USE_PYBIND11}")
 
 
 # get_libug4_from_pip
