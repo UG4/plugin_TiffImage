@@ -102,8 +102,16 @@ endfunction()
 
 # Building own libtiff..
 
-set(zlib OFF CACHE BOOL "zlib" FORCE)
-set(libdeflate OFF CACHE BOOL "libdeflate" FORCE)
+if(APPLE)
+	# TODO: macos-13 build for 10.9, macos-14 for 10.10. But libs are from build OS?
+	set(zlib OFF CACHE BOOL "zlib" FORCE)
+	set(libdeflate OFF CACHE BOOL "libdeflate" FORCE)
+	set(webp OFF CACHE BOOL "libdeflate" FORCE)
+	set(jpeg OFF CACHE BOOL "libdeflate" FORCE)
+	set(old-jpeg OFF CACHE BOOL "libdeflate" FORCE)
+end(APPLE)
+
+
 
 set(tiff-tools OFF CACHE BOOL "build TIFF tools" FORCE)
 set(tiff-tests OFF CACHE BOOL "build TIFF tests" FORCE)
