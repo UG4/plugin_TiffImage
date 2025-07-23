@@ -109,7 +109,7 @@ if(APPLE)
 	set(webp OFF CACHE BOOL "libdeflate" FORCE)
 	set(jpeg OFF CACHE BOOL "libdeflate" FORCE)
 	set(old-jpeg OFF CACHE BOOL "libdeflate" FORCE)
-end(APPLE)
+endif(APPLE)
 
 
 
