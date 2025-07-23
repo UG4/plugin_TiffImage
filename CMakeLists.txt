@@ -60,6 +60,44 @@ include(${UG_ROOT_CMAKE_PATH}/ug_plugin_includes.cmake) # This line changed USE_
 # MESSAGE (STATUS "PyBind2: ${USE_PYBIND11}")
 
 
+# get_libug4_from_pip
+# return_value1: location of library in current pip directory.
+function(get_libug4_from_pip_new RETURN_VAR)
+	SET(UG4_STATIC_LIB_BASENAME ug4_s)
+	#if(WIN32)
+    # 	set(UG4_STATIC_LIB_NAME "${LIB_BASENAME}.lib")
+	#else()
+    #	set(UG4_STATIC_LIB_NAME "lib${LIB_BASENAME}.a")
+	#endif()
+	
+	# Extract possible location of pip-package
+	execute_process(
+    		#COMMAND pip show ug4py-base
+			COMMAND python3 -m pip show ug4py-base
+    		OUTPUT_VARIABLE PIP_SHOW_OUTPUT
+    		OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+
+	# Extract the "Location" line & remove the ' prefix to get the actual path
+	set(UG4PY_BASE_PACKAGE_PATH "")
+	string(COMPARE EQUAL "${PIP_SHOW_OUTPUT}" "" ISEMPTY)
+	if (NOT ISEMPTY)
+		string(REGEX MATCH "Location: .+" LOCATION_LINE "${PIP_SHOW_OUTPUT}")
+		string(REPLACE "Location: " "" UG4PY_BASE_PACKAGE_PATH "${LOCATION_LINE}")
+		string(REGEX MATCH "^[^\n\r]*" UG4PY_BASE_PACKAGE_PATH "${UG4PY_BASE_PACKAGE_PATH}") # remove lines.
+	endif()
+	message(STATUS "Package path hint: '${UG4PY_BASE_PACKAGE_PATH}'")
+
+	# Find library.
+	find_library(PYUG4_STATIC_LIBRARY
+    			NAMES ${UG4_STATIC_LIB_BASENAME} lib${UG4_STATIC_LIB_BASENAME}
+    			PATHS ${UG4PY_BASE_PACKAGE_PATH}/lib ${UG4PY_BASE_PACKAGE_PATH}/lib64)
+	
+	message(STATUS "Library ${UG4_STATIC_LIB_BASENAME} found: ${PYUG4_STATIC_LIBRARY}")
+	
+	set(${RETURN_VAR} "${PYUG4_STATIC_LIBRARY}" PARENT_SCOPE) 
+endfunction()
+
 
 
 # Building own libtiff..
@@ -117,11 +155,11 @@ if(USE_PYBIND11)
 	###############################################
 	
 	set(UG4_STATIC_LIBRARY ug4_s)
-	if (BUILD_WITH_PIP)
-		get_libug4_from_pip(PYUG4_STATIC_LIBRARY)
+	# if (BUILD_WITH_PIP)
+		get_libug4_from_pip_new(PYUG4_STATIC_LIBRARY)
 		message(STATUS "Library found: ${PYUG4_STATIC_LIBRARY}")
 		set(UG4_STATIC_LIBRARY ${PYUG4_STATIC_LIBRARY})
-	endif()
+	# endif()
 	message(STATUS "Using libug4_s: ${UG4_STATIC_LIBRARY}")
 	
 	###############################################
