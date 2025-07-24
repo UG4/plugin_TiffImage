@@ -64,7 +64,7 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: > 
             pwd && ls && 
             export UG4_ROOT=$PWD/ug4-git &&
-            export CMAKE_ARGS="-DUG_ROOT_CMAKE_PATH=/project/ug4-git/ugcore/cmake" 
+            export CMAKE_ARGS=-DUG_ROOT_CMAKE_PATH=/project/ug4-git/ugcore/cmake
           CMAKE_ARGS: >-
             ${{ contains(matrix.os, 'ubuntu') && "-DUG_ROOT_CMAKE_PATH=/project/ug4-git/ugcore/cmake" || 
              contains(matrix.os, 'windows') && '-DBUILD_WITH_PIP=OFF -DUG_ROOT_CMAKE_PATH=D:/a/plugin_TiffImage/plugin_TiffImage/ug4-git/ugcore/cmake' || 
