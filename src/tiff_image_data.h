@@ -96,7 +96,7 @@ class TiffImageData : public StdGlobPosData<TiffImageData<dim, TData>, TData, di
 public:
 
 	typedef StdGlobPosData<TiffImageData<dim, TData>, TData, dim, void> base_type;
-	typedef UserData<TData, dim> user_data_type;
+	typedef CplUserData<TData, dim> user_data_type;
 
 	TiffImageData() : m_x0(0.0), m_x1(1.0), m_image_stack(SPNULL)
 	{}

@@ -204,7 +204,7 @@ static void Dimension(TRegistry& reg, string grp)
 		// Multilevel raster (e.g. COG)
 		string name = string("MultilevelRasterData").append(suffix);
 		using T=MultilevelRasterData<number, dim>;
-		using TBase=T::base_type:;base_type;
+		using TBase=typename T::base_type::base_type;
 
 		reg.template add_class_<T,TBase>(name, grp)
 			.template add_constructor<void (*)()>("MultilevelRasterData")
