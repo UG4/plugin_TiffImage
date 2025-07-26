@@ -203,8 +203,8 @@ static void Dimension(TRegistry& reg, string grp)
 	{
 		// Multilevel raster (e.g. COG)
 		string name = string("MultilevelRasterData").append(suffix);
-		typedef MultilevelRasterData<number, dim> T;
-		typedef typename T::base_type TBase;
+		using T=MultilevelRasterData<number, dim>;
+		using TBase=T::base_type:;base_type;
 
 		reg.template add_class_<T,TBase>(name, grp)
 			.template add_constructor<void (*)()>("MultilevelRasterData")
@@ -254,7 +254,7 @@ struct PyFunctionality
 				// Multilevel raster (e.g. COG)
 				string name = string("PyElementUserData").append(suffix);
 				typedef PyElementUserData<number, dim> T;
-				typedef typename T::base_type TBase;
+				typedef typename T::base_type::base_type TBase;
 
 				reg.template add_class_<T,TBase>(name, grp)
 					.template add_constructor<void (*)(typename T::TFunction)>("PyElementUserData")

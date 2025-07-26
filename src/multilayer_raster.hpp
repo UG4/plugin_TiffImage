@@ -12,13 +12,13 @@
 #include "element_user_data.hpp"
 
 namespace ug {
-//! This object implements a multi-level raster data.
 
 //! This is the real implementation.
 template <int dim>
 struct SimpleStrategy : public ElemenEvalStrategy<SimpleStrategy<dim>, dim>
 {
 public:
+	using base_type = ElemenEvalStrategy<SimpleStrategy<dim>, dim>;
 	SimpleStrategy(){}
 
 	void prepare_element_impl(const GridObject* elem, const MathVector<dim> vCornerCoords[])
@@ -39,10 +39,13 @@ protected:
 };
 
 
+
+//! This object implements a multi-level raster data.
 template < typename TData, int dim>
 class MultilevelRasterData : public ElementUserData<TData,SimpleStrategy<dim>, dim>
 {
 public:
+	using base_type = ElementUserData<TData,SimpleStrategy<dim>, dim>;
 	MultilevelRasterData() :
 		strategy(), ElementUserData<TData,SimpleStrategy<dim>, dim>(strategy)
 	{}

@@ -9,15 +9,11 @@
 #define SRC_ELEMENT_USER_DATA_HPP_
 
 
-
-
-
-
 #include "common/node_tree/node_tree.h" // for BoundingBox
 #include "common/node_tree/octree.h" // for BoundingBox
 
 namespace ug {
-//! This object implements a multi-level raster data.
+
 
 
 //! Bounding box for an element.
@@ -68,19 +64,23 @@ struct ElemenEvalStrategy
 
 };
 
-template < typename TData, typename ElemEvalStrategy, int dim>
+
+//! This object implements a multi-level raster data.
+/*! It relies on defining a Strategy for concrete implementation
+ * */
+template <typename TData, typename TElemEvalStrategy, int dim>
 class ElementUserData
-	: public StdUserData<ElementUserData<TData, ElemEvalStrategy, dim>, TData, dim>
+	: public StdUserData<ElementUserData<TData, TElemEvalStrategy, dim>, TData, dim>
 
 {
 	public:
 		typedef CplUserData<TData, dim> base_type;
-		typedef ElemEvalStrategy TStrategy;
+		typedef TElemEvalStrategy TStrategy;
 
 		ElementUserData(TStrategy &s) : strategy(s) {}
 		TStrategy &strategy;
 
-		// Implement StdUserData.
+		//! Implement StdUserData.
 		void operator() (TData& value,
 								 const MathVector<dim>& globIP,
 								 number time, int si) const override
@@ -103,7 +103,7 @@ class ElementUserData
 		};
 
 
-		///	Implement ICplUserData.
+		//! Implement ICplUserData.
 		void compute(LocalVector* u, GridObject* elem,
 		        const MathVector<dim> vCornerCoords[], bool bDeriv = false) override
 		{
@@ -124,7 +124,7 @@ class ElementUserData
 
 		}
 
-		// Compute values for an IP series
+		//! Compute values for an IP series
 		void compute(LocalVectorTimeSeries* u,
 		                     GridObject* elem,
 		                     const MathVector<dim> vCornerCoords[],
@@ -165,18 +165,9 @@ class ElementUserData
 
 		}
 
-
-
 		bool requires_grid_fct() const override {return false;}
 		bool constant() const override {return false;}
 		bool continuous() const override {return false;}
-
-	/*protected:
-		///	access to implementation
-			TImpl& getImpl() {return static_cast<TImpl&>(*this);}
-
-		///	const access to implementation
-			const TImpl& getImpl() const {return static_cast<const TImpl&>(*this);}*/
 
 };
 

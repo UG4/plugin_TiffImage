@@ -8,6 +8,7 @@
 #ifndef PYTHON_ELEM_USER_DATA_HPP_
 #define PYTHON_ELEM_USER_DATA_HPP_
 
+#include "element_user_data.hpp"
 
 #ifdef UG_USE_PYBIND11
 #include <Python.h>
@@ -20,11 +21,7 @@ namespace py = pybind11;
 
 
 
-#include "element_user_data.hpp"
-
 namespace ug {
-
-
 
 
 // Need to evaluate a python function
@@ -44,8 +41,8 @@ struct PyElemDataTraits<1>
 	typedef typename std::function<double(double, double, int)> TCppFunction;
 
 	template <typename TFunction>
-	static py::object  call(TFunction f, const MathVector<1> x, const MathVector<1> bb0, const MathVector<1> bb1,  double t, int si)
-	{return f(x[0],bb0[0],bb1[0],t,si);}
+	static py::object  call(TFunction f, const MathVector<1> x, const MathVector<1> belem0, const MathVector<1> belem1,  double t, int si)
+	{return f(x[0],belem0[0],belem1[0],t,si);}
 };
 
 template<>
@@ -53,8 +50,8 @@ struct PyElemDataTraits<2>
 {
 	typedef typename std::function<double(double, double, double, int)> TCppFunction;
 	template <typename TFunction>
-	static py::object call(TFunction f, const MathVector<2> x, const MathVector<2> bb0, const MathVector<2> bb1, double t, int si)
-	{return f(x[0],x[1], bb0[0],bb0[1],bb1[0],bb1[1],t,si);}
+	static py::object call(TFunction f, const MathVector<2> x, const MathVector<2> belem0, const MathVector<2> belem1, double t, int si)
+	{return f(x[0],x[1], belem0[0],belem0[1],belem1[0],belem1[1],t,si);}
 };
 
 template<>
@@ -63,8 +60,8 @@ struct PyElemDataTraits<3>
 	typedef typename std::function<double(double, double, double, double, int)> TCppFunction;
 
 	template <typename TFunction>
-	static py::object call(TFunction f, const MathVector<3> x, const MathVector<3> bb0, const MathVector<3> bb1, double t, int si)
-	{ return f(x[0],x[1],x[2], bb0[0],bb0[1],bb0[2], bb1[0],bb1[1],bb1[2],t,si); }
+	static py::object call(TFunction f, const MathVector<3> x, const MathVector<3> belem0, const MathVector<3> belem1, double t, int si)
+	{ return f(x[0],x[1],x[2], belem0[0],belem0[1],belem0[2], belem1[0],belem1[1],belem1[2],t,si); }
 };
 
 //! This realizes a Python callback.
@@ -75,39 +72,41 @@ struct PyCallbackStrategy : public ElemenEvalStrategy<PyCallbackStrategy<dim>, d
 	typedef py::object TFunction;
 	PyCallbackStrategy(TFunction f) : pyfunc(f) {}
 
+	//! Prepare element (=store bounding box B_elem).
 	void prepare_element_impl(const GridObject* elem, const MathVector<dim> vCornerCoords[])
 	{
 		BoundingBox<dim> box(elem,vCornerCoords);
-		bb[0] = box.ll;
-		bb[1] = box.ur;
+		belem[0] = box.ll;
+		belem[1] = box.ur;
 	}
 
-	//! Evaluate at x for a given bounding box B(x) at time t and subset si.
+	//! Evaluate at x for a given bounding box B_elem at time t and subset si.
 	void eval_on_element_impl(double &value,  const MathVector<dim> &vGlobIP, number time, int si) const
 	{
 		typedef number TData;
 		typedef void TRet;
-		py::object result_py = PyElemDataTraits<dim>().call(pyfunc, vGlobIP, bb[0], bb[1], time, si);
+		py::object result_py = PyElemDataTraits<dim>().call(pyfunc, vGlobIP, belem[0], belem[1], time, si);
 		value = PyUserDataTypeTraits<TData, TRet>::data_value(result_py);
 		// return PyUserDataTypeTraits<TData, TRet>::return_value(result_py);
 	}
 
 protected:
-	MathVector<dim> bb[2];
-
-	TFunction pyfunc; //! Callback function
+	MathVector<dim> belem[2]; 	//! Bounding box.
+	TFunction pyfunc; 		//! Callback function.
 };
 
 
 template < typename TData, int dim>
 class PyElementUserData : public ElementUserData<TData,PyCallbackStrategy<dim>, dim>
 {
+
 public:
+	using base_type = ElementUserData<TData,PyCallbackStrategy<dim>, dim>;
 	typedef py::object TFunction;
 
 	PyElementUserData(TFunction f) :
-	strategy(f), ElementUserData<TData,PyCallbackStrategy<dim>, dim>(strategy)
-	{}
+		strategy(f), ElementUserData<TData,PyCallbackStrategy<dim>, dim>(strategy)
+		{}
 
 protected:
 	PyCallbackStrategy<dim> strategy;
