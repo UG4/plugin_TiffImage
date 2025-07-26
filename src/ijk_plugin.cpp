@@ -48,6 +48,8 @@ using namespace ug::bridge;
 
 #include "tiff_image_data.h"
 #include "multilayer_raster.hpp"
+#include "py_element_user_data.hpp"
+
 
 namespace ug{
 namespace IJKRasterDataPlugin{

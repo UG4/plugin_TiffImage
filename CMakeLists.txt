@@ -102,43 +102,54 @@ endfunction()
 
 
 
-# Building own libtiff..
-
-if(APPLE)
-	# TODO: Per default, macos-13 builds for 10.9, macos-14 for 10.10. 
- 	# But libs are taken from build OS...
- 	# May be avoided by setting MACOSX_DEPLOYMENT_TARGET?
-	set(zlib OFF CACHE BOOL "zlib" FORCE)
-	set(libdeflate OFF CACHE BOOL "libdeflate" FORCE)
-	set(webp OFF CACHE BOOL "libdeflate" FORCE)
-	set(jpeg OFF CACHE BOOL "libdeflate" FORCE)
-	set(old-jpeg OFF CACHE BOOL "libdeflate" FORCE)
- 	set(zstd OFF CACHE BOOL "libdeflate" FORCE)
-  	set(lzma OFF CACHE BOOL "libdeflate" FORCE)
-endif(APPLE)
 
 
 
-set(tiff-tools OFF CACHE BOOL "build TIFF tools" FORCE)
-set(tiff-tests OFF CACHE BOOL "build TIFF tests" FORCE)
-set(tiff-contrib OFF CACHE BOOL "build TIFF contrib" FORCE)
-set(tiff-docs OFF CACHE BOOL "build TIFF documentation" FORCE)
-add_subdirectory(libtiff)
+# include libTIFF module 
+if(INTERNAL_LIB_TIFF)
+	# External libtiff from OS.
+	find_package(TIFF REQUIRED)
+	include_directories(${TIFF_INCLUDE_DIR})
+	MESSAGE (STATUS "TIFF-lib: ${TIFF_LIBRARIES}")
+	MESSAGE (STATUS "TIFF-inc: ${TIFF_INCLUDE_DIR}")
+	MESSAGE (STATUS "TIFF-pybind11: ${USE_PYBIND11}")
+else(INTERNAL_LIB_TIFF)
+	# Internal libtiff.
+	# Building own libtiff..
+	message(STATUS, "Building LibTiff internally.")
+	
+	if(APPLE)
+		# TODO: Per default, macos-13 builds for 10.9, macos-14 for 10.10. 
+ 		# But libs are taken from build OS...
+ 		# May be avoided by setting MACOSX_DEPLOYMENT_TARGET?
+		set(zlib OFF CACHE BOOL "zlib" FORCE)
+		set(libdeflate OFF CACHE BOOL "libdeflate" FORCE)
+		set(webp OFF CACHE BOOL "libdeflate" FORCE)
+		set(jpeg OFF CACHE BOOL "libjpeg" FORCE)
+		set(old-jpeg OFF CACHE BOOL "libdeflate" FORCE)
+		set(jpeg12 OFF CACHE BOOL "libjpeg12" FORCE)
+ 		set(zstd OFF CACHE BOOL "libzstd" FORCE)
+  		set(lzma OFF CACHE BOOL "libdeflate" FORCE)
+	endif(APPLE)
+	
+	set(tiff-tools OFF CACHE BOOL "build TIFF tools" FORCE)
+	set(tiff-tests OFF CACHE BOOL "build TIFF tests" FORCE)
+	set(tiff-contrib OFF CACHE BOOL "build TIFF contrib" FORCE)
+	set(tiff-docs OFF CACHE BOOL "build TIFF documentation" FORCE)
+	
+	# Build form subdir
+	add_subdirectory(libtiff)
+	
+endif(INTERNAL_LIB_TIFF)
+
+
+
+
 
 set(TIFF_LIBRARY "tiff")
 set(TIFF_INCLUDE_DIR "libtiff/libtiff")
 
-# include libTIFF module 
-# find_package(TIFF REQUIRED)
 
-#if(TIFF_FOUND)
-#	include_directories(${TIFF_INCLUDE_DIR})
-#	MESSAGE (STATUS "TIFF-lib: ${TIFF_LIBRARIES}")
-#	MESSAGE (STATUS "TIFF-inc: ${TIFF_INCLUDE_DIR}")
-#	MESSAGE (STATUS "TIFF-pybind11: ${USE_PYBIND11}")
-#else(TIFF_FOUND)
-#	message(FATAL, "LibTiff not found!")
-#endif(TIFF_FOUND)
 
 
 ################################################################################
