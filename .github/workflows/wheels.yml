@@ -56,10 +56,10 @@ jobs:
         continue-on-error: true
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.18.0
+        uses: pypa/cibuildwheel@v3.4.0
         env:
           CIBW_BUILD_VERBOSITY:  1
-          CIBW_BUILD: cp312-*
+          CIBW_BUILD: cp312-* cp314-*
           CIBW_SKIP: "*-win32 *-musllinux_* *linux_i686 *linux_s390x *linux_aarch64 *linux_s390x" 
           CIBW_BEFORE_ALL_LINUX: > 
             pwd && ls && 
