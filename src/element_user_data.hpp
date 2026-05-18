@@ -31,7 +31,14 @@ struct BoundingBox
 		} else if (roid == ROID_QUADRILATERAL){
 			node_tree::CalculateBoundingBox(ll, ur, vCornerCoords, 4);
 			nvertices = 4;
+		} else if (roid == ROID_TETRAHEDRON){
+			node_tree::CalculateBoundingBox(ll, ur, vCornerCoords, 4);
+			nvertices = 4;
+		} else if (roid == ROID_HEXAHEDRON){
+			node_tree::CalculateBoundingBox(ll, ur, vCornerCoords, 8);
+			nvertices = 8;
 		}
+
 
 		std::cerr << "This is elem " << elem << "(" << roid << ") " << "with corners:" << std::endl;
 		for (int i=0; i< nvertices;  ++i)
