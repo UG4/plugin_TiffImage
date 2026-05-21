@@ -183,13 +183,19 @@ if(USE_PYBIND11)
 	# 0) Let's try to locate ug_4 static library....
 	###############################################
 	
-	set(UG4_STATIC_LIBRARY ug4_s)
-	# if (BUILD_WITH_PIP)
-		get_libug4_from_pip_new(PYUG4_STATIC_LIBRARY)
+	if(buildDynamicLib)
+		set(UG4_LIBRARY ug4)
+	else(buildDynamicLib)
+		set(UG4_LIBRARY ug4_s)
+	endif(buildDynamicLib)
+	
+	if (BUILD_WITH_PIP)
+		get_libug4_from_pip(PYUG4_STATIC_LIBRARY ${UG4_LIBRARY})
 		message(STATUS "Library found: ${PYUG4_STATIC_LIBRARY}")
-		set(UG4_STATIC_LIBRARY ${PYUG4_STATIC_LIBRARY})
-	# endif()
-	message(STATUS "Using libug4_s: ${UG4_STATIC_LIBRARY}")
+		set(UG4_LIBRARY ${PYUG4_STATIC_LIBRARY})
+	endif()
+	message(STATUS "Linking with: ${UG4_LIBRARY}")
+	
 	
 	###############################################
  	# 1) Create (static) library for plugin.
@@ -205,9 +211,18 @@ if(USE_PYBIND11)
 	SET(myPluginSources src/ijk_plugin_pybind.cpp)
 	python_add_library(pyijkdata MODULE ${myPluginSources} ${SOURCES} WITH_SOABI)
 	target_link_directories (pyijkdata PRIVATE ${UG4PY_BASE_PACKAGE_PATH})
-	target_link_libraries (pyijkdata PRIVATE IJKDataPlugin ${UG4_STATIC_LIBRARY} ${TIFF_LIBRARY})
+	target_link_libraries (pyijkdata PRIVATE IJKDataPlugin ${UG4_LIBRARY} ${TIFF_LIBRARY})
 	target_include_directories (pyijkdata PUBLIC ${TIFF_INCLUDE_DIR} )
-	set_target_properties(pyijkdata PROPERTIES INSTALL_RPATH "$ORIGIN/..:$ORIGIN/../../../lib")
+	
+	# Link ug4 dynamically.
+	if(APPLE)
+    	set_target_properties(pyijkdata PROPERTIES 
+    		INSTALL_RPATH "@loader_path/../lib"
+    		BUILD_WITH_INSTALL_RPATH TRUE)
+	elseif(LINUX AND NOT APPLE)
+		set_target_properties(pyijkdata PROPERTIES INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib")
+	endif()
+
 	install(TARGETS pyijkdata LIBRARY DESTINATION ug4py COMPONENT pymodules)
 
 endif(USE_PYBIND11)
