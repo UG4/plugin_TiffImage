@@ -14,6 +14,8 @@
 
 PYBIND11_MODULE(pyijkdata, m)
 {
+	pybind11::module_::import("pyugcore"); // Import module (e.g. for inheritance of CplUserNumber1d)
+
 	m.doc() = "IJKData module";
 	m.attr("__name__") = "ug4py.ijkdata";
 
